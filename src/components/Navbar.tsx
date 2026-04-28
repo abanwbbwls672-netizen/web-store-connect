@@ -3,11 +3,13 @@ import { Menu, X, Code2, Languages } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/hooks/useI18n";
+import { useAuth } from "@/hooks/useAuth";
 
 export const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const { t, lang, toggle } = useI18n();
+  const { user } = useAuth();
 
   const links = [
     { label: t("nav.home"), href: "#home" },
@@ -68,9 +70,11 @@ export const Navbar = () => {
 
         <div className="hidden md:flex items-center gap-2">
           {LangBtn}
-          <Button variant="ghost" size="sm" asChild>
-            <a href="/dashboard">{t("nav.dashboard")}</a>
-          </Button>
+          {user && (
+            <Button variant="ghost" size="sm" asChild>
+              <a href="/dashboard">{t("nav.dashboard")}</a>
+            </Button>
+          )}
           <Button variant="hero" size="sm" asChild>
             <a href="#contact">{t("nav.hire")}</a>
           </Button>
