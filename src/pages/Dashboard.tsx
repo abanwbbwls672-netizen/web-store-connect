@@ -214,9 +214,12 @@ export default function Dashboard() {
             <span className="font-bold">Web Store <span className="text-muted-foreground font-normal text-sm">/ Dashboard</span></span>
           </a>
           <div className="flex items-center gap-3">
+            <Button variant="ghost" size="sm" onClick={toggle} title="Language">
+              <Languages className="h-4 w-4" /> {lang === "en" ? "العربية" : "English"}
+            </Button>
             <Avatar className="h-8 w-8"><AvatarFallback className="bg-primary/20 text-primary text-xs">{initials}</AvatarFallback></Avatar>
             <span className="text-xs text-muted-foreground hidden sm:inline">{user.email}</span>
-            <Button variant="ghost" size="sm" onClick={signOut}><LogOut className="h-4 w-4" /> Sign out</Button>
+            <Button variant="ghost" size="sm" onClick={signOut}><LogOut className="h-4 w-4" /> {t("db.signout")}</Button>
           </div>
         </div>
         {/* Section tabs */}
@@ -229,7 +232,7 @@ export default function Dashboard() {
                 section === s.id ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-secondary"
               }`}
             >
-              <s.icon className="h-4 w-4" /> {s.label}
+              <s.icon className="h-4 w-4" /> {t(s.labelKey)}
             </button>
           ))}
         </div>
@@ -239,14 +242,14 @@ export default function Dashboard() {
         {/* OVERVIEW */}
         <section id="overview" className={section === "overview" ? "" : "hidden"}>
           <div className="mb-6">
-            <h1 className="text-3xl font-bold">Overview</h1>
-            <p className="text-muted-foreground">Your activity at a glance.</p>
+            <h1 className="text-3xl font-bold">{t("db.overview.title")}</h1>
+            <p className="text-muted-foreground">{t("db.overview.desc")}</p>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <Stat icon={FolderIcon} label="Projects" value={projects.length} accent="bg-primary/15 text-primary" />
-            <Stat icon={MessageSquare} label="Messages" value={messages.length} accent="bg-accent/15 text-accent-foreground" />
-            <Stat icon={TrendingUp} label="Unread" value={unread} accent="bg-yellow-500/15 text-yellow-500" />
-            <Stat icon={MousePointerClick} label="WhatsApp Clicks" value={clicks.length} accent="bg-emerald-500/15 text-emerald-500" />
+            <Stat icon={FolderIcon} label={t("db.stat.projects")} value={projects.length} accent="bg-primary/15 text-primary" />
+            <Stat icon={MessageSquare} label={t("db.stat.messages")} value={messages.length} accent="bg-accent/15 text-accent-foreground" />
+            <Stat icon={TrendingUp} label={t("db.stat.unread")} value={unread} accent="bg-yellow-500/15 text-yellow-500" />
+            <Stat icon={MousePointerClick} label={t("db.stat.clicks")} value={clicks.length} accent="bg-emerald-500/15 text-emerald-500" />
           </div>
         </section>
 
