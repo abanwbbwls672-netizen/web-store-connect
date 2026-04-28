@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useTheme, themes } from "@/hooks/useTheme";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -49,8 +50,14 @@ const emptyProject = { title: "", description: "", image_url: "", link_url: "", 
 
 export default function Dashboard() {
   const { user, isAdmin, loading, signOut } = useAuth();
+  const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
   const [section, setSection] = useState<string>("overview");
+
+  // Password change
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [pwLoading, setPwLoading] = useState(false);
 
   // Data
   const [projects, setProjects] = useState<Project[]>([]);
