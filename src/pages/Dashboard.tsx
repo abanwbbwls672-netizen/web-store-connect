@@ -340,36 +340,36 @@ export default function Dashboard() {
         {/* WHATSAPP */}
         <section id="whatsapp" className={section === "whatsapp" ? "" : "hidden"}>
           <div className="mb-6">
-            <h2 className="text-3xl font-bold">WhatsApp Settings</h2>
-            <p className="text-muted-foreground">Configure the floating WhatsApp button.</p>
+            <h2 className="text-3xl font-bold">{t("db.wa.title")}</h2>
+            <p className="text-muted-foreground">{t("db.wa.desc")}</p>
           </div>
           <Card className="p-6 space-y-4 glass max-w-2xl">
             <div className="flex items-center justify-between">
               <div>
-                <Label className="text-base">Enable widget</Label>
-                <p className="text-xs text-muted-foreground">Show or hide the floating button.</p>
+                <Label className="text-base">{t("db.wa.enable")}</Label>
+                <p className="text-xs text-muted-foreground">{t("db.wa.enable.desc")}</p>
               </div>
               <Switch checked={enabled} onCheckedChange={setEnabled} />
             </div>
-            <div><Label>Phone number</Label><Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+201226601882" /></div>
-            <div><Label>Greeting message</Label><Textarea value={greeting} onChange={(e) => setGreeting(e.target.value)} rows={3} /></div>
-            <Button variant="hero" onClick={saveWhats}>Save settings</Button>
+            <div><Label>{t("db.wa.phone")}</Label><Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+201226601882" /></div>
+            <div><Label>{t("db.wa.greet")}</Label><Textarea value={greeting} onChange={(e) => setGreeting(e.target.value)} rows={3} /></div>
+            <Button variant="hero" onClick={saveWhats}>{t("db.wa.save")}</Button>
           </Card>
         </section>
 
         {/* ANALYTICS */}
         <section id="analytics" className={section === "analytics" ? "" : "hidden"}>
           <div className="mb-6">
-            <h2 className="text-3xl font-bold">Analytics</h2>
-            <p className="text-muted-foreground">WhatsApp engagement.</p>
+            <h2 className="text-3xl font-bold">{t("db.an.title")}</h2>
+            <p className="text-muted-foreground">{t("db.an.desc")}</p>
           </div>
           <div className="grid gap-4 sm:grid-cols-3 mb-6">
-            <Card className="p-5"><p className="text-xs uppercase text-muted-foreground">Total clicks</p><p className="text-3xl font-bold mt-2">{clicks.length}</p></Card>
-            <Card className="p-5"><p className="text-xs uppercase text-muted-foreground">Last 14 days</p><p className="text-3xl font-bold mt-2">{days.reduce((s, d) => s + d.clicks, 0)}</p></Card>
-            <Card className="p-5"><p className="text-xs uppercase text-muted-foreground">Countries</p><p className="text-3xl font-bold mt-2">{countryStats.length}</p></Card>
+            <Card className="p-5"><p className="text-xs uppercase text-muted-foreground">{t("db.an.total")}</p><p className="text-3xl font-bold mt-2">{clicks.length}</p></Card>
+            <Card className="p-5"><p className="text-xs uppercase text-muted-foreground">{t("db.an.last14")}</p><p className="text-3xl font-bold mt-2">{days.reduce((s, d) => s + d.clicks, 0)}</p></Card>
+            <Card className="p-5"><p className="text-xs uppercase text-muted-foreground">{t("db.an.countries")}</p><p className="text-3xl font-bold mt-2">{countryStats.length}</p></Card>
           </div>
           <Card className="p-5 mb-6">
-            <h3 className="font-semibold mb-4">Clicks (last 14 days)</h3>
+            <h3 className="font-semibold mb-4">{t("db.an.chart")}</h3>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={days}>
@@ -383,8 +383,8 @@ export default function Dashboard() {
             </div>
           </Card>
           <Card className="p-5">
-            <h3 className="font-semibold mb-4">Top countries</h3>
-            {countryStats.length === 0 ? <p className="text-sm text-muted-foreground">No data yet.</p> : (
+            <h3 className="font-semibold mb-4">{t("db.an.top")}</h3>
+            {countryStats.length === 0 ? <p className="text-sm text-muted-foreground">{t("db.an.nodata")}</p> : (
               <div className="space-y-2">
                 {countryStats.map(([c, n]) => (
                   <div key={c} className="flex items-center justify-between text-sm">
@@ -399,52 +399,52 @@ export default function Dashboard() {
         {/* SETTINGS */}
         <section id="settings" className={section === "settings" ? "" : "hidden"}>
           <div className="mb-6">
-            <h2 className="text-3xl font-bold">Settings</h2>
-            <p className="text-muted-foreground">Account, security and appearance.</p>
+            <h2 className="text-3xl font-bold">{t("db.set.title")}</h2>
+            <p className="text-muted-foreground">{t("db.set.desc")}</p>
           </div>
 
           <div className="grid gap-6 max-w-2xl">
             {/* Profile */}
             <Card className="p-6 space-y-4 glass">
-              <h3 className="font-semibold text-lg">Profile</h3>
-              <div><Label>Email</Label><Input value={user.email ?? ""} disabled /></div>
-              <div><Label>Full name</Label><Input value={fullName} onChange={(e) => setFullName(e.target.value)} /></div>
-              <div><Label>Role</Label><Input value={isAdmin ? "Admin" : "User"} disabled /></div>
-              <Button variant="hero" onClick={saveProfile}>Save profile</Button>
+              <h3 className="font-semibold text-lg">{t("db.set.profile")}</h3>
+              <div><Label>{t("db.set.email")}</Label><Input value={user.email ?? ""} disabled /></div>
+              <div><Label>{t("db.set.fullname")}</Label><Input value={fullName} onChange={(e) => setFullName(e.target.value)} /></div>
+              <div><Label>{t("db.set.role")}</Label><Input value={isAdmin ? t("db.set.role.admin") : t("db.set.role.user")} disabled /></div>
+              <Button variant="hero" onClick={saveProfile}>{t("db.set.saveProfile")}</Button>
             </Card>
 
             {/* Password */}
             <Card className="p-6 space-y-4 glass">
-              <h3 className="font-semibold text-lg">Change password</h3>
-              <p className="text-xs text-muted-foreground">Use at least 6 characters.</p>
-              <div><Label>New password</Label><Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="••••••••" /></div>
-              <div><Label>Confirm new password</Label><Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" /></div>
+              <h3 className="font-semibold text-lg">{t("db.set.password")}</h3>
+              <p className="text-xs text-muted-foreground">{t("db.set.password.hint")}</p>
+              <div><Label>{t("db.set.password.new")}</Label><Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="••••••••" /></div>
+              <div><Label>{t("db.set.password.confirm")}</Label><Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" /></div>
               <Button variant="hero" onClick={changePassword} disabled={pwLoading}>
-                {pwLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Update password
+                {pwLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null} {t("db.set.password.update")}
               </Button>
             </Card>
 
             {/* Theme */}
             <Card className="p-6 space-y-4 glass">
-              <h3 className="font-semibold text-lg">Site colors</h3>
-              <p className="text-xs text-muted-foreground">Choose a color theme. Applies instantly across the site.</p>
+              <h3 className="font-semibold text-lg">{t("db.set.colors")}</h3>
+              <p className="text-xs text-muted-foreground">{t("db.set.colors.desc")}</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {themes.map((t) => {
-                  const active = theme === t.key;
+                {themes.map((th) => {
+                  const active = theme === th.key;
                   return (
                     <button
-                      key={t.key}
-                      onClick={() => setTheme(t.key)}
-                      className={`group relative rounded-xl border p-4 text-left transition-all ${
+                      key={th.key}
+                      onClick={() => setTheme(th.key)}
+                      className={`group relative rounded-xl border p-4 text-start transition-all ${
                         active ? "border-primary ring-2 ring-primary/40" : "border-border hover:border-primary/50"
                       }`}
                     >
                       <div
                         className="h-10 w-full rounded-lg mb-3"
-                        style={{ background: `linear-gradient(135deg, hsl(${t.swatch}), hsl(${t.swatch} / 0.6))` }}
+                        style={{ background: `linear-gradient(135deg, hsl(${th.swatch}), hsl(${th.swatch} / 0.6))` }}
                       />
                       <div className="flex items-center justify-between">
-                        <span className="font-medium text-sm">{t.label}</span>
+                        <span className="font-medium text-sm">{th.label}</span>
                         {active && <CheckCircle2 className="h-4 w-4 text-primary" />}
                       </div>
                     </button>
