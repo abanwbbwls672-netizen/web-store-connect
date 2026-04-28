@@ -3,11 +3,12 @@ import { useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, FolderKanban, MessageSquare, MessageCircle, BarChart3, Settings,
   LogOut, Code2, Loader2, Plus, Edit, Trash2, ExternalLink, Mail, Phone, CheckCircle2,
-  FolderKanban as FolderIcon, MousePointerClick, TrendingUp,
+  FolderKanban as FolderIcon, MousePointerClick, TrendingUp, Languages,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme, themes } from "@/hooks/useTheme";
+import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -26,13 +27,13 @@ type Msg = { id: string; sender_name: string; sender_email: string | null; sende
 type Click = { id: string; created_at: string; country: string | null; source: string | null };
 
 const sections = [
-  { id: "overview", label: "Overview", icon: LayoutDashboard },
-  { id: "projects", label: "Projects", icon: FolderKanban },
-  { id: "messages", label: "Messages", icon: MessageSquare },
-  { id: "whatsapp", label: "WhatsApp", icon: MessageCircle },
-  { id: "analytics", label: "Analytics", icon: BarChart3 },
-  { id: "settings", label: "Settings", icon: Settings },
-];
+  { id: "overview", labelKey: "db.section.overview", icon: LayoutDashboard },
+  { id: "projects", labelKey: "db.section.projects", icon: FolderKanban },
+  { id: "messages", labelKey: "db.section.messages", icon: MessageSquare },
+  { id: "whatsapp", labelKey: "db.section.whatsapp", icon: MessageCircle },
+  { id: "analytics", labelKey: "db.section.analytics", icon: BarChart3 },
+  { id: "settings", labelKey: "db.section.settings", icon: Settings },
+] as const;
 
 const Stat = ({ icon: Icon, label, value, accent }: any) => (
   <Card className="p-5 glass">
@@ -51,6 +52,7 @@ const emptyProject = { title: "", description: "", image_url: "", link_url: "", 
 export default function Dashboard() {
   const { user, isAdmin, loading, signOut } = useAuth();
   const { theme, setTheme } = useTheme();
+  const { t, lang, toggle } = useI18n();
   const navigate = useNavigate();
   const [section, setSection] = useState<string>("overview");
 
@@ -116,7 +118,7 @@ export default function Dashboard() {
     setPOpen(true);
   };
   const saveProject = async () => {
-    if (!user || !pForm.title.trim()) { toast.error("Title required"); return; }
+    if (!user || !pForm.title.trim()) { toast.error(t("db.toast.titleRequired")); return; }
     const payload = {
       user_id: user.id, title: pForm.title.trim(),
       description: pForm.description.trim() || null,
@@ -128,33 +130,33 @@ export default function Dashboard() {
       ? await supabase.from("projects").update(payload).eq("id", editing.id)
       : await supabase.from("projects").insert(payload);
     if (error) { toast.error(error.message); return; }
-    toast.success(editing ? "Project updated" : "Project added");
+    toast.success(editing ? t("db.toast.projectUpdated") : t("db.toast.projectAdded"));
     setPOpen(false); loadAll();
   };
   const removeProject = async (id: string) => {
-    if (!confirm("Delete this project?")) return;
+    if (!confirm(t("db.toast.confirmDelProject"))) return;
     const { error } = await supabase.from("projects").delete().eq("id", id);
     if (error) { toast.error(error.message); return; }
-    toast.success("Deleted"); loadAll();
+    toast.success(t("db.toast.deleted")); loadAll();
   };
 
   // Messages
   const markRead = async (id: string) => { await supabase.from("messages").update({ is_read: true }).eq("id", id); loadAll(); };
   const removeMsg = async (id: string) => {
-    if (!confirm("Delete this message?")) return;
+    if (!confirm(t("db.toast.confirmDelMsg"))) return;
     await supabase.from("messages").delete().eq("id", id);
-    toast.success("Deleted"); loadAll();
+    toast.success(t("db.toast.deleted")); loadAll();
   };
 
   // WhatsApp
   const saveWhats = async () => {
-    if (!user || !phone.trim()) { toast.error("Phone required"); return; }
+    if (!user || !phone.trim()) { toast.error(t("db.toast.phoneRequired")); return; }
     const payload = { user_id: user.id, phone_number: phone.trim(), greeting_message: greeting.trim() || null, is_enabled: enabled };
     const { error } = hasWhats
       ? await supabase.from("whatsapp_settings").update(payload).eq("user_id", user.id)
       : await supabase.from("whatsapp_settings").insert(payload);
     if (error) { toast.error(error.message); return; }
-    toast.success("Saved"); setHasWhats(true);
+    toast.success(t("db.toast.saved")); setHasWhats(true);
   };
 
   // Profile
@@ -162,18 +164,18 @@ export default function Dashboard() {
     if (!user) return;
     const { error } = await supabase.from("profiles").update({ full_name: fullName.trim() || null }).eq("id", user.id);
     if (error) { toast.error(error.message); return; }
-    toast.success("Profile updated");
+    toast.success(t("db.toast.profileUpdated"));
   };
 
   // Password change
   const changePassword = async () => {
-    if (newPassword.length < 6) { toast.error("Password must be at least 6 characters"); return; }
-    if (newPassword !== confirmPassword) { toast.error("Passwords do not match"); return; }
+    if (newPassword.length < 6) { toast.error(t("db.toast.pwShort")); return; }
+    if (newPassword !== confirmPassword) { toast.error(t("db.toast.pwMismatch")); return; }
     setPwLoading(true);
     const { error } = await supabase.auth.updateUser({ password: newPassword });
     setPwLoading(false);
     if (error) { toast.error(error.message); return; }
-    toast.success("Password updated successfully");
+    toast.success(t("db.toast.pwUpdated"));
     setNewPassword(""); setConfirmPassword("");
   };
 
@@ -212,9 +214,12 @@ export default function Dashboard() {
             <span className="font-bold">Web Store <span className="text-muted-foreground font-normal text-sm">/ Dashboard</span></span>
           </a>
           <div className="flex items-center gap-3">
+            <Button variant="ghost" size="sm" onClick={toggle} title="Language">
+              <Languages className="h-4 w-4" /> {lang === "en" ? "العربية" : "English"}
+            </Button>
             <Avatar className="h-8 w-8"><AvatarFallback className="bg-primary/20 text-primary text-xs">{initials}</AvatarFallback></Avatar>
             <span className="text-xs text-muted-foreground hidden sm:inline">{user.email}</span>
-            <Button variant="ghost" size="sm" onClick={signOut}><LogOut className="h-4 w-4" /> Sign out</Button>
+            <Button variant="ghost" size="sm" onClick={signOut}><LogOut className="h-4 w-4" /> {t("db.signout")}</Button>
           </div>
         </div>
         {/* Section tabs */}
@@ -227,7 +232,7 @@ export default function Dashboard() {
                 section === s.id ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-secondary"
               }`}
             >
-              <s.icon className="h-4 w-4" /> {s.label}
+              <s.icon className="h-4 w-4" /> {t(s.labelKey)}
             </button>
           ))}
         </div>
@@ -237,14 +242,14 @@ export default function Dashboard() {
         {/* OVERVIEW */}
         <section id="overview" className={section === "overview" ? "" : "hidden"}>
           <div className="mb-6">
-            <h1 className="text-3xl font-bold">Overview</h1>
-            <p className="text-muted-foreground">Your activity at a glance.</p>
+            <h1 className="text-3xl font-bold">{t("db.overview.title")}</h1>
+            <p className="text-muted-foreground">{t("db.overview.desc")}</p>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <Stat icon={FolderIcon} label="Projects" value={projects.length} accent="bg-primary/15 text-primary" />
-            <Stat icon={MessageSquare} label="Messages" value={messages.length} accent="bg-accent/15 text-accent-foreground" />
-            <Stat icon={TrendingUp} label="Unread" value={unread} accent="bg-yellow-500/15 text-yellow-500" />
-            <Stat icon={MousePointerClick} label="WhatsApp Clicks" value={clicks.length} accent="bg-emerald-500/15 text-emerald-500" />
+            <Stat icon={FolderIcon} label={t("db.stat.projects")} value={projects.length} accent="bg-primary/15 text-primary" />
+            <Stat icon={MessageSquare} label={t("db.stat.messages")} value={messages.length} accent="bg-accent/15 text-accent-foreground" />
+            <Stat icon={TrendingUp} label={t("db.stat.unread")} value={unread} accent="bg-yellow-500/15 text-yellow-500" />
+            <Stat icon={MousePointerClick} label={t("db.stat.clicks")} value={clicks.length} accent="bg-emerald-500/15 text-emerald-500" />
           </div>
         </section>
 
@@ -252,26 +257,26 @@ export default function Dashboard() {
         <section id="projects" className={section === "projects" ? "" : "hidden"}>
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-3xl font-bold">Projects</h2>
-              <p className="text-muted-foreground">Manage your portfolio projects.</p>
+              <h2 className="text-3xl font-bold">{t("db.projects.title")}</h2>
+              <p className="text-muted-foreground">{t("db.projects.desc")}</p>
             </div>
             <Dialog open={pOpen} onOpenChange={setPOpen}>
-              <DialogTrigger asChild><Button variant="hero" onClick={openNew}><Plus className="h-4 w-4" /> New Project</Button></DialogTrigger>
+              <DialogTrigger asChild><Button variant="hero" onClick={openNew}><Plus className="h-4 w-4" /> {t("db.projects.new")}</Button></DialogTrigger>
               <DialogContent className="max-w-lg">
-                <DialogHeader><DialogTitle>{editing ? "Edit Project" : "New Project"}</DialogTitle></DialogHeader>
+                <DialogHeader><DialogTitle>{editing ? t("db.projects.edit") : t("db.projects.new")}</DialogTitle></DialogHeader>
                 <div className="space-y-3">
-                  <div><Label>Title</Label><Input value={pForm.title} onChange={(e) => setPForm({ ...pForm, title: e.target.value })} /></div>
-                  <div><Label>Description</Label><Textarea value={pForm.description} onChange={(e) => setPForm({ ...pForm, description: e.target.value })} rows={3} /></div>
-                  <div><Label>Image URL</Label><Input value={pForm.image_url} onChange={(e) => setPForm({ ...pForm, image_url: e.target.value })} /></div>
-                  <div><Label>Link URL</Label><Input value={pForm.link_url} onChange={(e) => setPForm({ ...pForm, link_url: e.target.value })} /></div>
-                  <div><Label>Tech stack (comma separated)</Label><Input value={pForm.tech_stack} onChange={(e) => setPForm({ ...pForm, tech_stack: e.target.value })} placeholder="React, Node, Postgres" /></div>
-                  <Button variant="hero" className="w-full" onClick={saveProject}>{editing ? "Update" : "Create"}</Button>
+                  <div><Label>{t("db.f.title")}</Label><Input value={pForm.title} onChange={(e) => setPForm({ ...pForm, title: e.target.value })} /></div>
+                  <div><Label>{t("db.f.description")}</Label><Textarea value={pForm.description} onChange={(e) => setPForm({ ...pForm, description: e.target.value })} rows={3} /></div>
+                  <div><Label>{t("db.f.image")}</Label><Input value={pForm.image_url} onChange={(e) => setPForm({ ...pForm, image_url: e.target.value })} /></div>
+                  <div><Label>{t("db.f.link")}</Label><Input value={pForm.link_url} onChange={(e) => setPForm({ ...pForm, link_url: e.target.value })} /></div>
+                  <div><Label>{t("db.f.tech")}</Label><Input value={pForm.tech_stack} onChange={(e) => setPForm({ ...pForm, tech_stack: e.target.value })} placeholder="React, Node, Postgres" /></div>
+                  <Button variant="hero" className="w-full" onClick={saveProject}>{editing ? t("db.btn.update") : t("db.btn.create")}</Button>
                 </div>
               </DialogContent>
             </Dialog>
           </div>
           {projects.length === 0 ? (
-            <Card className="p-12 text-center text-muted-foreground">No projects yet.</Card>
+            <Card className="p-12 text-center text-muted-foreground">{t("db.projects.empty")}</Card>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {projects.map((p) => (
@@ -282,11 +287,11 @@ export default function Dashboard() {
                   </div>
                   {p.description && <p className="text-sm text-muted-foreground mt-2 line-clamp-3">{p.description}</p>}
                   {p.tech_stack && p.tech_stack.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-3">{p.tech_stack.map((t) => <Badge key={t} variant="secondary" className="text-xs">{t}</Badge>)}</div>
+                    <div className="flex flex-wrap gap-1 mt-3">{p.tech_stack.map((tag) => <Badge key={tag} variant="secondary" className="text-xs">{tag}</Badge>)}</div>
                   )}
                   <div className="flex gap-2 mt-4 pt-4 border-t border-border/60">
-                    <Button variant="ghost" size="sm" onClick={() => openEdit(p)}><Edit className="h-3.5 w-3.5" /> Edit</Button>
-                    <Button variant="ghost" size="sm" onClick={() => removeProject(p.id)} className="text-destructive"><Trash2 className="h-3.5 w-3.5" /> Delete</Button>
+                    <Button variant="ghost" size="sm" onClick={() => openEdit(p)}><Edit className="h-3.5 w-3.5" /> {t("db.btn.edit")}</Button>
+                    <Button variant="ghost" size="sm" onClick={() => removeProject(p.id)} className="text-destructive"><Trash2 className="h-3.5 w-3.5" /> {t("db.btn.delete")}</Button>
                   </div>
                 </Card>
               ))}
@@ -297,11 +302,11 @@ export default function Dashboard() {
         {/* MESSAGES */}
         <section id="messages" className={section === "messages" ? "" : "hidden"}>
           <div className="mb-6">
-            <h2 className="text-3xl font-bold">Messages</h2>
-            <p className="text-muted-foreground">Inbound messages from your contact form & widget.</p>
+            <h2 className="text-3xl font-bold">{t("db.msg.title")}</h2>
+            <p className="text-muted-foreground">{t("db.msg.desc")}</p>
           </div>
           {messages.length === 0 ? (
-            <Card className="p-12 text-center text-muted-foreground">No messages yet.</Card>
+            <Card className="p-12 text-center text-muted-foreground">{t("db.msg.empty")}</Card>
           ) : (
             <div className="space-y-3">
               {messages.map((m) => (
@@ -310,7 +315,7 @@ export default function Dashboard() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <h3 className="font-semibold">{m.sender_name}</h3>
-                        {!m.is_read && <Badge className="bg-primary/20 text-primary border-primary/30">New</Badge>}
+                        {!m.is_read && <Badge className="bg-primary/20 text-primary border-primary/30">{t("db.msg.new")}</Badge>}
                         <Badge variant="outline" className="text-xs">{m.source}</Badge>
                       </div>
                       <div className="flex gap-3 text-xs text-muted-foreground mt-1 flex-wrap">
@@ -321,7 +326,7 @@ export default function Dashboard() {
                       <p className="text-sm mt-3 whitespace-pre-wrap">{m.content}</p>
                     </div>
                     <div className="flex gap-2">
-                      {!m.is_read && <Button variant="ghost" size="sm" onClick={() => markRead(m.id)}><CheckCircle2 className="h-3.5 w-3.5" /> Mark read</Button>}
+                      {!m.is_read && <Button variant="ghost" size="sm" onClick={() => markRead(m.id)}><CheckCircle2 className="h-3.5 w-3.5" /> {t("db.btn.markread")}</Button>}
                       <Button variant="ghost" size="sm" onClick={() => removeMsg(m.id)} className="text-destructive"><Trash2 className="h-3.5 w-3.5" /></Button>
                     </div>
                   </div>
@@ -331,39 +336,40 @@ export default function Dashboard() {
           )}
         </section>
 
+
         {/* WHATSAPP */}
         <section id="whatsapp" className={section === "whatsapp" ? "" : "hidden"}>
           <div className="mb-6">
-            <h2 className="text-3xl font-bold">WhatsApp Settings</h2>
-            <p className="text-muted-foreground">Configure the floating WhatsApp button.</p>
+            <h2 className="text-3xl font-bold">{t("db.wa.title")}</h2>
+            <p className="text-muted-foreground">{t("db.wa.desc")}</p>
           </div>
           <Card className="p-6 space-y-4 glass max-w-2xl">
             <div className="flex items-center justify-between">
               <div>
-                <Label className="text-base">Enable widget</Label>
-                <p className="text-xs text-muted-foreground">Show or hide the floating button.</p>
+                <Label className="text-base">{t("db.wa.enable")}</Label>
+                <p className="text-xs text-muted-foreground">{t("db.wa.enable.desc")}</p>
               </div>
               <Switch checked={enabled} onCheckedChange={setEnabled} />
             </div>
-            <div><Label>Phone number</Label><Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+201226601882" /></div>
-            <div><Label>Greeting message</Label><Textarea value={greeting} onChange={(e) => setGreeting(e.target.value)} rows={3} /></div>
-            <Button variant="hero" onClick={saveWhats}>Save settings</Button>
+            <div><Label>{t("db.wa.phone")}</Label><Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+201226601882" /></div>
+            <div><Label>{t("db.wa.greet")}</Label><Textarea value={greeting} onChange={(e) => setGreeting(e.target.value)} rows={3} /></div>
+            <Button variant="hero" onClick={saveWhats}>{t("db.wa.save")}</Button>
           </Card>
         </section>
 
         {/* ANALYTICS */}
         <section id="analytics" className={section === "analytics" ? "" : "hidden"}>
           <div className="mb-6">
-            <h2 className="text-3xl font-bold">Analytics</h2>
-            <p className="text-muted-foreground">WhatsApp engagement.</p>
+            <h2 className="text-3xl font-bold">{t("db.an.title")}</h2>
+            <p className="text-muted-foreground">{t("db.an.desc")}</p>
           </div>
           <div className="grid gap-4 sm:grid-cols-3 mb-6">
-            <Card className="p-5"><p className="text-xs uppercase text-muted-foreground">Total clicks</p><p className="text-3xl font-bold mt-2">{clicks.length}</p></Card>
-            <Card className="p-5"><p className="text-xs uppercase text-muted-foreground">Last 14 days</p><p className="text-3xl font-bold mt-2">{days.reduce((s, d) => s + d.clicks, 0)}</p></Card>
-            <Card className="p-5"><p className="text-xs uppercase text-muted-foreground">Countries</p><p className="text-3xl font-bold mt-2">{countryStats.length}</p></Card>
+            <Card className="p-5"><p className="text-xs uppercase text-muted-foreground">{t("db.an.total")}</p><p className="text-3xl font-bold mt-2">{clicks.length}</p></Card>
+            <Card className="p-5"><p className="text-xs uppercase text-muted-foreground">{t("db.an.last14")}</p><p className="text-3xl font-bold mt-2">{days.reduce((s, d) => s + d.clicks, 0)}</p></Card>
+            <Card className="p-5"><p className="text-xs uppercase text-muted-foreground">{t("db.an.countries")}</p><p className="text-3xl font-bold mt-2">{countryStats.length}</p></Card>
           </div>
           <Card className="p-5 mb-6">
-            <h3 className="font-semibold mb-4">Clicks (last 14 days)</h3>
+            <h3 className="font-semibold mb-4">{t("db.an.chart")}</h3>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={days}>
@@ -377,8 +383,8 @@ export default function Dashboard() {
             </div>
           </Card>
           <Card className="p-5">
-            <h3 className="font-semibold mb-4">Top countries</h3>
-            {countryStats.length === 0 ? <p className="text-sm text-muted-foreground">No data yet.</p> : (
+            <h3 className="font-semibold mb-4">{t("db.an.top")}</h3>
+            {countryStats.length === 0 ? <p className="text-sm text-muted-foreground">{t("db.an.nodata")}</p> : (
               <div className="space-y-2">
                 {countryStats.map(([c, n]) => (
                   <div key={c} className="flex items-center justify-between text-sm">
@@ -393,52 +399,52 @@ export default function Dashboard() {
         {/* SETTINGS */}
         <section id="settings" className={section === "settings" ? "" : "hidden"}>
           <div className="mb-6">
-            <h2 className="text-3xl font-bold">Settings</h2>
-            <p className="text-muted-foreground">Account, security and appearance.</p>
+            <h2 className="text-3xl font-bold">{t("db.set.title")}</h2>
+            <p className="text-muted-foreground">{t("db.set.desc")}</p>
           </div>
 
           <div className="grid gap-6 max-w-2xl">
             {/* Profile */}
             <Card className="p-6 space-y-4 glass">
-              <h3 className="font-semibold text-lg">Profile</h3>
-              <div><Label>Email</Label><Input value={user.email ?? ""} disabled /></div>
-              <div><Label>Full name</Label><Input value={fullName} onChange={(e) => setFullName(e.target.value)} /></div>
-              <div><Label>Role</Label><Input value={isAdmin ? "Admin" : "User"} disabled /></div>
-              <Button variant="hero" onClick={saveProfile}>Save profile</Button>
+              <h3 className="font-semibold text-lg">{t("db.set.profile")}</h3>
+              <div><Label>{t("db.set.email")}</Label><Input value={user.email ?? ""} disabled /></div>
+              <div><Label>{t("db.set.fullname")}</Label><Input value={fullName} onChange={(e) => setFullName(e.target.value)} /></div>
+              <div><Label>{t("db.set.role")}</Label><Input value={isAdmin ? t("db.set.role.admin") : t("db.set.role.user")} disabled /></div>
+              <Button variant="hero" onClick={saveProfile}>{t("db.set.saveProfile")}</Button>
             </Card>
 
             {/* Password */}
             <Card className="p-6 space-y-4 glass">
-              <h3 className="font-semibold text-lg">Change password</h3>
-              <p className="text-xs text-muted-foreground">Use at least 6 characters.</p>
-              <div><Label>New password</Label><Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="••••••••" /></div>
-              <div><Label>Confirm new password</Label><Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" /></div>
+              <h3 className="font-semibold text-lg">{t("db.set.password")}</h3>
+              <p className="text-xs text-muted-foreground">{t("db.set.password.hint")}</p>
+              <div><Label>{t("db.set.password.new")}</Label><Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="••••••••" /></div>
+              <div><Label>{t("db.set.password.confirm")}</Label><Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" /></div>
               <Button variant="hero" onClick={changePassword} disabled={pwLoading}>
-                {pwLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Update password
+                {pwLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null} {t("db.set.password.update")}
               </Button>
             </Card>
 
             {/* Theme */}
             <Card className="p-6 space-y-4 glass">
-              <h3 className="font-semibold text-lg">Site colors</h3>
-              <p className="text-xs text-muted-foreground">Choose a color theme. Applies instantly across the site.</p>
+              <h3 className="font-semibold text-lg">{t("db.set.colors")}</h3>
+              <p className="text-xs text-muted-foreground">{t("db.set.colors.desc")}</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {themes.map((t) => {
-                  const active = theme === t.key;
+                {themes.map((th) => {
+                  const active = theme === th.key;
                   return (
                     <button
-                      key={t.key}
-                      onClick={() => setTheme(t.key)}
-                      className={`group relative rounded-xl border p-4 text-left transition-all ${
+                      key={th.key}
+                      onClick={() => setTheme(th.key)}
+                      className={`group relative rounded-xl border p-4 text-start transition-all ${
                         active ? "border-primary ring-2 ring-primary/40" : "border-border hover:border-primary/50"
                       }`}
                     >
                       <div
                         className="h-10 w-full rounded-lg mb-3"
-                        style={{ background: `linear-gradient(135deg, hsl(${t.swatch}), hsl(${t.swatch} / 0.6))` }}
+                        style={{ background: `linear-gradient(135deg, hsl(${th.swatch}), hsl(${th.swatch} / 0.6))` }}
                       />
                       <div className="flex items-center justify-between">
-                        <span className="font-medium text-sm">{t.label}</span>
+                        <span className="font-medium text-sm">{th.label}</span>
                         {active && <CheckCircle2 className="h-4 w-4 text-primary" />}
                       </div>
                     </button>
