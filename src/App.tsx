@@ -4,16 +4,10 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/useAuth";
-import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Auth from "./pages/Auth.tsx";
-import Overview from "./pages/dashboard/Overview.tsx";
-import Projects from "./pages/dashboard/Projects.tsx";
-import Messages from "./pages/dashboard/Messages.tsx";
-import WhatsApp from "./pages/dashboard/WhatsApp.tsx";
-import Analytics from "./pages/dashboard/Analytics.tsx";
-import Settings from "./pages/dashboard/Settings.tsx";
+import Dashboard from "./pages/Dashboard.tsx";
 
 const queryClient = new QueryClient();
 
@@ -27,14 +21,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
-            <Route path="/dashboard" element={<DashboardLayout />}>
-              <Route index element={<Overview />} />
-              <Route path="projects" element={<Projects />} />
-              <Route path="messages" element={<Messages />} />
-              <Route path="whatsapp" element={<WhatsApp />} />
-              <Route path="analytics" element={<Analytics />} />
-              <Route path="settings" element={<Settings />} />
-            </Route>
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
