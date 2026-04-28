@@ -336,42 +336,6 @@ export default function Dashboard() {
           )}
         </section>
 
-        {/* MESSAGES */}
-        <section id="messages" className={section === "messages" ? "" : "hidden"}>
-          <div className="mb-6">
-            <h2 className="text-3xl font-bold">Messages</h2>
-            <p className="text-muted-foreground">Inbound messages from your contact form & widget.</p>
-          </div>
-          {messages.length === 0 ? (
-            <Card className="p-12 text-center text-muted-foreground">No messages yet.</Card>
-          ) : (
-            <div className="space-y-3">
-              {messages.map((m) => (
-                <Card key={m.id} className={`p-5 ${!m.is_read ? "border-primary/40" : ""}`}>
-                  <div className="flex items-start justify-between gap-4 flex-wrap">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="font-semibold">{m.sender_name}</h3>
-                        {!m.is_read && <Badge className="bg-primary/20 text-primary border-primary/30">New</Badge>}
-                        <Badge variant="outline" className="text-xs">{m.source}</Badge>
-                      </div>
-                      <div className="flex gap-3 text-xs text-muted-foreground mt-1 flex-wrap">
-                        {m.sender_email && <span className="flex items-center gap-1"><Mail className="h-3 w-3" />{m.sender_email}</span>}
-                        {m.sender_phone && <span className="flex items-center gap-1"><Phone className="h-3 w-3" />{m.sender_phone}</span>}
-                        <span>{formatDistanceToNow(new Date(m.created_at), { addSuffix: true })}</span>
-                      </div>
-                      <p className="text-sm mt-3 whitespace-pre-wrap">{m.content}</p>
-                    </div>
-                    <div className="flex gap-2">
-                      {!m.is_read && <Button variant="ghost" size="sm" onClick={() => markRead(m.id)}><CheckCircle2 className="h-3.5 w-3.5" /> Mark read</Button>}
-                      <Button variant="ghost" size="sm" onClick={() => removeMsg(m.id)} className="text-destructive"><Trash2 className="h-3.5 w-3.5" /></Button>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          )}
-        </section>
 
         {/* WHATSAPP */}
         <section id="whatsapp" className={section === "whatsapp" ? "" : "hidden"}>
