@@ -27,13 +27,13 @@ type Msg = { id: string; sender_name: string; sender_email: string | null; sende
 type Click = { id: string; created_at: string; country: string | null; source: string | null };
 
 const sections = [
-  { id: "overview", label: "Overview", icon: LayoutDashboard },
-  { id: "projects", label: "Projects", icon: FolderKanban },
-  { id: "messages", label: "Messages", icon: MessageSquare },
-  { id: "whatsapp", label: "WhatsApp", icon: MessageCircle },
-  { id: "analytics", label: "Analytics", icon: BarChart3 },
-  { id: "settings", label: "Settings", icon: Settings },
-];
+  { id: "overview", labelKey: "db.section.overview", icon: LayoutDashboard },
+  { id: "projects", labelKey: "db.section.projects", icon: FolderKanban },
+  { id: "messages", labelKey: "db.section.messages", icon: MessageSquare },
+  { id: "whatsapp", labelKey: "db.section.whatsapp", icon: MessageCircle },
+  { id: "analytics", labelKey: "db.section.analytics", icon: BarChart3 },
+  { id: "settings", labelKey: "db.section.settings", icon: Settings },
+] as const;
 
 const Stat = ({ icon: Icon, label, value, accent }: any) => (
   <Card className="p-5 glass">
@@ -52,6 +52,7 @@ const emptyProject = { title: "", description: "", image_url: "", link_url: "", 
 export default function Dashboard() {
   const { user, isAdmin, loading, signOut } = useAuth();
   const { theme, setTheme } = useTheme();
+  const { t, lang, toggle } = useI18n();
   const navigate = useNavigate();
   const [section, setSection] = useState<string>("overview");
 
