@@ -257,26 +257,26 @@ export default function Dashboard() {
         <section id="projects" className={section === "projects" ? "" : "hidden"}>
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-3xl font-bold">Projects</h2>
-              <p className="text-muted-foreground">Manage your portfolio projects.</p>
+              <h2 className="text-3xl font-bold">{t("db.projects.title")}</h2>
+              <p className="text-muted-foreground">{t("db.projects.desc")}</p>
             </div>
             <Dialog open={pOpen} onOpenChange={setPOpen}>
-              <DialogTrigger asChild><Button variant="hero" onClick={openNew}><Plus className="h-4 w-4" /> New Project</Button></DialogTrigger>
+              <DialogTrigger asChild><Button variant="hero" onClick={openNew}><Plus className="h-4 w-4" /> {t("db.projects.new")}</Button></DialogTrigger>
               <DialogContent className="max-w-lg">
-                <DialogHeader><DialogTitle>{editing ? "Edit Project" : "New Project"}</DialogTitle></DialogHeader>
+                <DialogHeader><DialogTitle>{editing ? t("db.projects.edit") : t("db.projects.new")}</DialogTitle></DialogHeader>
                 <div className="space-y-3">
-                  <div><Label>Title</Label><Input value={pForm.title} onChange={(e) => setPForm({ ...pForm, title: e.target.value })} /></div>
-                  <div><Label>Description</Label><Textarea value={pForm.description} onChange={(e) => setPForm({ ...pForm, description: e.target.value })} rows={3} /></div>
-                  <div><Label>Image URL</Label><Input value={pForm.image_url} onChange={(e) => setPForm({ ...pForm, image_url: e.target.value })} /></div>
-                  <div><Label>Link URL</Label><Input value={pForm.link_url} onChange={(e) => setPForm({ ...pForm, link_url: e.target.value })} /></div>
-                  <div><Label>Tech stack (comma separated)</Label><Input value={pForm.tech_stack} onChange={(e) => setPForm({ ...pForm, tech_stack: e.target.value })} placeholder="React, Node, Postgres" /></div>
-                  <Button variant="hero" className="w-full" onClick={saveProject}>{editing ? "Update" : "Create"}</Button>
+                  <div><Label>{t("db.f.title")}</Label><Input value={pForm.title} onChange={(e) => setPForm({ ...pForm, title: e.target.value })} /></div>
+                  <div><Label>{t("db.f.description")}</Label><Textarea value={pForm.description} onChange={(e) => setPForm({ ...pForm, description: e.target.value })} rows={3} /></div>
+                  <div><Label>{t("db.f.image")}</Label><Input value={pForm.image_url} onChange={(e) => setPForm({ ...pForm, image_url: e.target.value })} /></div>
+                  <div><Label>{t("db.f.link")}</Label><Input value={pForm.link_url} onChange={(e) => setPForm({ ...pForm, link_url: e.target.value })} /></div>
+                  <div><Label>{t("db.f.tech")}</Label><Input value={pForm.tech_stack} onChange={(e) => setPForm({ ...pForm, tech_stack: e.target.value })} placeholder="React, Node, Postgres" /></div>
+                  <Button variant="hero" className="w-full" onClick={saveProject}>{editing ? t("db.btn.update") : t("db.btn.create")}</Button>
                 </div>
               </DialogContent>
             </Dialog>
           </div>
           {projects.length === 0 ? (
-            <Card className="p-12 text-center text-muted-foreground">No projects yet.</Card>
+            <Card className="p-12 text-center text-muted-foreground">{t("db.projects.empty")}</Card>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {projects.map((p) => (
@@ -287,11 +287,48 @@ export default function Dashboard() {
                   </div>
                   {p.description && <p className="text-sm text-muted-foreground mt-2 line-clamp-3">{p.description}</p>}
                   {p.tech_stack && p.tech_stack.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-3">{p.tech_stack.map((t) => <Badge key={t} variant="secondary" className="text-xs">{t}</Badge>)}</div>
+                    <div className="flex flex-wrap gap-1 mt-3">{p.tech_stack.map((tag) => <Badge key={tag} variant="secondary" className="text-xs">{tag}</Badge>)}</div>
                   )}
                   <div className="flex gap-2 mt-4 pt-4 border-t border-border/60">
-                    <Button variant="ghost" size="sm" onClick={() => openEdit(p)}><Edit className="h-3.5 w-3.5" /> Edit</Button>
-                    <Button variant="ghost" size="sm" onClick={() => removeProject(p.id)} className="text-destructive"><Trash2 className="h-3.5 w-3.5" /> Delete</Button>
+                    <Button variant="ghost" size="sm" onClick={() => openEdit(p)}><Edit className="h-3.5 w-3.5" /> {t("db.btn.edit")}</Button>
+                    <Button variant="ghost" size="sm" onClick={() => removeProject(p.id)} className="text-destructive"><Trash2 className="h-3.5 w-3.5" /> {t("db.btn.delete")}</Button>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* MESSAGES */}
+        <section id="messages" className={section === "messages" ? "" : "hidden"}>
+          <div className="mb-6">
+            <h2 className="text-3xl font-bold">{t("db.msg.title")}</h2>
+            <p className="text-muted-foreground">{t("db.msg.desc")}</p>
+          </div>
+          {messages.length === 0 ? (
+            <Card className="p-12 text-center text-muted-foreground">{t("db.msg.empty")}</Card>
+          ) : (
+            <div className="space-y-3">
+              {messages.map((m) => (
+                <Card key={m.id} className={`p-5 ${!m.is_read ? "border-primary/40" : ""}`}>
+                  <div className="flex items-start justify-between gap-4 flex-wrap">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="font-semibold">{m.sender_name}</h3>
+                        {!m.is_read && <Badge className="bg-primary/20 text-primary border-primary/30">{t("db.msg.new")}</Badge>}
+                        <Badge variant="outline" className="text-xs">{m.source}</Badge>
+                      </div>
+                      <div className="flex gap-3 text-xs text-muted-foreground mt-1 flex-wrap">
+                        {m.sender_email && <span className="flex items-center gap-1"><Mail className="h-3 w-3" />{m.sender_email}</span>}
+                        {m.sender_phone && <span className="flex items-center gap-1"><Phone className="h-3 w-3" />{m.sender_phone}</span>}
+                        <span>{formatDistanceToNow(new Date(m.created_at), { addSuffix: true })}</span>
+                      </div>
+                      <p className="text-sm mt-3 whitespace-pre-wrap">{m.content}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      {!m.is_read && <Button variant="ghost" size="sm" onClick={() => markRead(m.id)}><CheckCircle2 className="h-3.5 w-3.5" /> {t("db.btn.markread")}</Button>}
+                      <Button variant="ghost" size="sm" onClick={() => removeMsg(m.id)} className="text-destructive"><Trash2 className="h-3.5 w-3.5" /></Button>
+                    </div>
                   </div>
                 </Card>
               ))}
