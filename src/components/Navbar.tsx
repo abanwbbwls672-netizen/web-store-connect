@@ -58,6 +58,9 @@ export const Navbar = () => {
         </nav>
 
         <div className="hidden md:flex items-center gap-2">
+          <Button variant="ghost" size="sm" asChild>
+            <a href="/dashboard">Dashboard</a>
+          </Button>
           <Button variant="hero" size="sm" asChild>
             <a href="#contact">Hire Me</a>
           </Button>
