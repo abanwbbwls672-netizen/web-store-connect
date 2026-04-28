@@ -3,11 +3,12 @@ import { useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, FolderKanban, MessageSquare, MessageCircle, BarChart3, Settings,
   LogOut, Code2, Loader2, Plus, Edit, Trash2, ExternalLink, Mail, Phone, CheckCircle2,
-  FolderKanban as FolderIcon, MousePointerClick, TrendingUp,
+  FolderKanban as FolderIcon, MousePointerClick, TrendingUp, Languages,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme, themes } from "@/hooks/useTheme";
+import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
