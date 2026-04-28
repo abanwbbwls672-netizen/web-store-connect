@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useTheme, themes } from "@/hooks/useTheme";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -49,8 +50,14 @@ const emptyProject = { title: "", description: "", image_url: "", link_url: "", 
 
 export default function Dashboard() {
   const { user, isAdmin, loading, signOut } = useAuth();
+  const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
   const [section, setSection] = useState<string>("overview");
+
+  // Password change
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [pwLoading, setPwLoading] = useState(false);
 
   // Data
   const [projects, setProjects] = useState<Project[]>([]);
@@ -156,6 +163,18 @@ export default function Dashboard() {
     const { error } = await supabase.from("profiles").update({ full_name: fullName.trim() || null }).eq("id", user.id);
     if (error) { toast.error(error.message); return; }
     toast.success("Profile updated");
+  };
+
+  // Password change
+  const changePassword = async () => {
+    if (newPassword.length < 6) { toast.error("Password must be at least 6 characters"); return; }
+    if (newPassword !== confirmPassword) { toast.error("Passwords do not match"); return; }
+    setPwLoading(true);
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    setPwLoading(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Password updated successfully");
+    setNewPassword(""); setConfirmPassword("");
   };
 
   // Stats
@@ -375,14 +394,59 @@ export default function Dashboard() {
         <section id="settings" className={section === "settings" ? "" : "hidden"}>
           <div className="mb-6">
             <h2 className="text-3xl font-bold">Settings</h2>
-            <p className="text-muted-foreground">Account and profile.</p>
+            <p className="text-muted-foreground">Account, security and appearance.</p>
           </div>
-          <Card className="p-6 space-y-4 glass max-w-2xl">
-            <div><Label>Email</Label><Input value={user.email ?? ""} disabled /></div>
-            <div><Label>Full name</Label><Input value={fullName} onChange={(e) => setFullName(e.target.value)} /></div>
-            <div><Label>Role</Label><Input value={isAdmin ? "Admin" : "User"} disabled /></div>
-            <Button variant="hero" onClick={saveProfile}>Save</Button>
-          </Card>
+
+          <div className="grid gap-6 max-w-2xl">
+            {/* Profile */}
+            <Card className="p-6 space-y-4 glass">
+              <h3 className="font-semibold text-lg">Profile</h3>
+              <div><Label>Email</Label><Input value={user.email ?? ""} disabled /></div>
+              <div><Label>Full name</Label><Input value={fullName} onChange={(e) => setFullName(e.target.value)} /></div>
+              <div><Label>Role</Label><Input value={isAdmin ? "Admin" : "User"} disabled /></div>
+              <Button variant="hero" onClick={saveProfile}>Save profile</Button>
+            </Card>
+
+            {/* Password */}
+            <Card className="p-6 space-y-4 glass">
+              <h3 className="font-semibold text-lg">Change password</h3>
+              <p className="text-xs text-muted-foreground">Use at least 6 characters.</p>
+              <div><Label>New password</Label><Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="••••••••" /></div>
+              <div><Label>Confirm new password</Label><Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" /></div>
+              <Button variant="hero" onClick={changePassword} disabled={pwLoading}>
+                {pwLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Update password
+              </Button>
+            </Card>
+
+            {/* Theme */}
+            <Card className="p-6 space-y-4 glass">
+              <h3 className="font-semibold text-lg">Site colors</h3>
+              <p className="text-xs text-muted-foreground">Choose a color theme. Applies instantly across the site.</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {themes.map((t) => {
+                  const active = theme === t.key;
+                  return (
+                    <button
+                      key={t.key}
+                      onClick={() => setTheme(t.key)}
+                      className={`group relative rounded-xl border p-4 text-left transition-all ${
+                        active ? "border-primary ring-2 ring-primary/40" : "border-border hover:border-primary/50"
+                      }`}
+                    >
+                      <div
+                        className="h-10 w-full rounded-lg mb-3"
+                        style={{ background: `linear-gradient(135deg, hsl(${t.swatch}), hsl(${t.swatch} / 0.6))` }}
+                      />
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium text-sm">{t.label}</span>
+                        {active && <CheckCircle2 className="h-4 w-4 text-primary" />}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </Card>
+          </div>
         </section>
       </main>
     </div>
