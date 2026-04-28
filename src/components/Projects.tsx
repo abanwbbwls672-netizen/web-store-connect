@@ -1,4 +1,5 @@
 import { ArrowUpRight } from "lucide-react";
+import { useI18n } from "@/hooks/useI18n";
 
 const projects = [
   {
@@ -46,22 +47,18 @@ const projects = [
 ];
 
 export const Projects = () => {
+  const { t } = useI18n();
   return (
     <section id="projects" className="py-24 sm:py-32 relative">
       <div className="container">
         <div className="flex items-end justify-between flex-wrap gap-6 mb-12">
           <div className="animate-fade-up">
-            <div className="text-xs font-mono uppercase tracking-[0.2em] text-primary mb-4">
-              // selected work
-            </div>
+            <div className="text-xs font-mono uppercase tracking-[0.2em] text-primary mb-4">{t("projects.tag")}</div>
             <h2 className="text-3xl sm:text-5xl font-bold tracking-tight">
-              Projects that <span className="text-gradient">shipped</span>.
+              {t("projects.title.1")} <span className="text-gradient">{t("projects.title.shipped")}</span>.
             </h2>
           </div>
-          <p className="max-w-md text-muted-foreground">
-            A snapshot of recent products — from internal tools to public-facing
-            SaaS platforms used by thousands of users.
-          </p>
+          <p className="max-w-md text-muted-foreground">{t("projects.desc")}</p>
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
