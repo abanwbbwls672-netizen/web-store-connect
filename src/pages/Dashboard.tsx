@@ -118,7 +118,7 @@ export default function Dashboard() {
     setPOpen(true);
   };
   const saveProject = async () => {
-    if (!user || !pForm.title.trim()) { toast.error("Title required"); return; }
+    if (!user || !pForm.title.trim()) { toast.error(t("db.toast.titleRequired")); return; }
     const payload = {
       user_id: user.id, title: pForm.title.trim(),
       description: pForm.description.trim() || null,
@@ -130,33 +130,33 @@ export default function Dashboard() {
       ? await supabase.from("projects").update(payload).eq("id", editing.id)
       : await supabase.from("projects").insert(payload);
     if (error) { toast.error(error.message); return; }
-    toast.success(editing ? "Project updated" : "Project added");
+    toast.success(editing ? t("db.toast.projectUpdated") : t("db.toast.projectAdded"));
     setPOpen(false); loadAll();
   };
   const removeProject = async (id: string) => {
-    if (!confirm("Delete this project?")) return;
+    if (!confirm(t("db.toast.confirmDelProject"))) return;
     const { error } = await supabase.from("projects").delete().eq("id", id);
     if (error) { toast.error(error.message); return; }
-    toast.success("Deleted"); loadAll();
+    toast.success(t("db.toast.deleted")); loadAll();
   };
 
   // Messages
   const markRead = async (id: string) => { await supabase.from("messages").update({ is_read: true }).eq("id", id); loadAll(); };
   const removeMsg = async (id: string) => {
-    if (!confirm("Delete this message?")) return;
+    if (!confirm(t("db.toast.confirmDelMsg"))) return;
     await supabase.from("messages").delete().eq("id", id);
-    toast.success("Deleted"); loadAll();
+    toast.success(t("db.toast.deleted")); loadAll();
   };
 
   // WhatsApp
   const saveWhats = async () => {
-    if (!user || !phone.trim()) { toast.error("Phone required"); return; }
+    if (!user || !phone.trim()) { toast.error(t("db.toast.phoneRequired")); return; }
     const payload = { user_id: user.id, phone_number: phone.trim(), greeting_message: greeting.trim() || null, is_enabled: enabled };
     const { error } = hasWhats
       ? await supabase.from("whatsapp_settings").update(payload).eq("user_id", user.id)
       : await supabase.from("whatsapp_settings").insert(payload);
     if (error) { toast.error(error.message); return; }
-    toast.success("Saved"); setHasWhats(true);
+    toast.success(t("db.toast.saved")); setHasWhats(true);
   };
 
   // Profile
@@ -164,18 +164,18 @@ export default function Dashboard() {
     if (!user) return;
     const { error } = await supabase.from("profiles").update({ full_name: fullName.trim() || null }).eq("id", user.id);
     if (error) { toast.error(error.message); return; }
-    toast.success("Profile updated");
+    toast.success(t("db.toast.profileUpdated"));
   };
 
   // Password change
   const changePassword = async () => {
-    if (newPassword.length < 6) { toast.error("Password must be at least 6 characters"); return; }
-    if (newPassword !== confirmPassword) { toast.error("Passwords do not match"); return; }
+    if (newPassword.length < 6) { toast.error(t("db.toast.pwShort")); return; }
+    if (newPassword !== confirmPassword) { toast.error(t("db.toast.pwMismatch")); return; }
     setPwLoading(true);
     const { error } = await supabase.auth.updateUser({ password: newPassword });
     setPwLoading(false);
     if (error) { toast.error(error.message); return; }
-    toast.success("Password updated successfully");
+    toast.success(t("db.toast.pwUpdated"));
     setNewPassword(""); setConfirmPassword("");
   };
 
