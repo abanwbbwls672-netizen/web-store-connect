@@ -1,19 +1,21 @@
 import { useEffect, useState } from "react";
-import { Menu, X, Code2 } from "lucide-react";
+import { Menu, X, Code2, Languages } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-
-const links = [
-  { label: "Home", href: "#home" },
-  { label: "About", href: "#about" },
-  { label: "Projects", href: "#projects" },
-  { label: "Skills", href: "#skills" },
-  { label: "Contact", href: "#contact" },
-];
+import { useI18n } from "@/hooks/useI18n";
 
 export const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const { t, lang, toggle } = useI18n();
+
+  const links = [
+    { label: t("nav.home"), href: "#home" },
+    { label: t("nav.about"), href: "#about" },
+    { label: t("nav.projects"), href: "#projects" },
+    { label: t("nav.skills"), href: "#skills" },
+    { label: t("nav.contact"), href: "#contact" },
+  ];
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -21,6 +23,13 @@ export const Navbar = () => {
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  const LangBtn = (
+    <Button variant="ghost" size="sm" onClick={toggle} className="gap-1.5" title="Language">
+      <Languages className="h-4 w-4" />
+      <span className="font-mono text-xs">{lang === "en" ? "العربية" : "EN"}</span>
+    </Button>
+  );
 
   return (
     <header
@@ -58,11 +67,12 @@ export const Navbar = () => {
         </nav>
 
         <div className="hidden md:flex items-center gap-2">
+          {LangBtn}
           <Button variant="ghost" size="sm" asChild>
-            <a href="/dashboard">Dashboard</a>
+            <a href="/dashboard">{t("nav.dashboard")}</a>
           </Button>
           <Button variant="hero" size="sm" asChild>
-            <a href="#contact">Hire Me</a>
+            <a href="#contact">{t("nav.hire")}</a>
           </Button>
         </div>
 
@@ -88,9 +98,14 @@ export const Navbar = () => {
                 {l.label}
               </a>
             ))}
-            <Button variant="hero" className="mt-2" asChild>
-              <a href="#contact" onClick={() => setOpen(false)}>Hire Me</a>
-            </Button>
+            <div className="flex gap-2 mt-2">
+              <Button variant="outline" className="flex-1" onClick={() => { toggle(); setOpen(false); }}>
+                <Languages className="h-4 w-4" /> {lang === "en" ? "العربية" : "English"}
+              </Button>
+              <Button variant="hero" className="flex-1" asChild>
+                <a href="#contact" onClick={() => setOpen(false)}>{t("nav.hire")}</a>
+              </Button>
+            </div>
           </div>
         </div>
       )}
