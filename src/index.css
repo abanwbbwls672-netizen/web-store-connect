@@ -141,3 +141,8 @@
   from { opacity: 0; transform: translateY(20px) scale(0.96); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
+
+/* Arabic font when document direction is RTL */
+html[dir="rtl"] body {
+  font-family: 'Cairo', 'Inter', system-ui, -apple-system, sans-serif;
+}
