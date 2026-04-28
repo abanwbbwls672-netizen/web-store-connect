@@ -169,6 +169,7 @@ const dict = {
     "db.toast.pwShort": "Password must be at least 6 characters",
     "db.toast.pwMismatch": "Passwords do not match",
     "db.toast.pwUpdated": "Password updated successfully",
+  },
   ar: {
     "nav.home": "الرئيسية",
     "nav.about": "نبذة",
