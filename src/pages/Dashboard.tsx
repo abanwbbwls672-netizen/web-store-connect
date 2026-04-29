@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useTheme, themes } from "@/hooks/useTheme";
+import { useTheme, themes, hslToHex } from "@/hooks/useTheme";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -51,7 +51,7 @@ const emptyProject = { title: "", description: "", image_url: "", link_url: "", 
 
 export default function Dashboard() {
   const { user, isAdmin, loading, signOut } = useAuth();
-  const { theme, setTheme } = useTheme();
+  const { state, setMode, setPreset, setPrimaryHex, setAccentHex, setBgHue, reset } = useTheme();
   const { t, lang, toggle } = useI18n();
   const navigate = useNavigate();
   const [section, setSection] = useState<string>("overview");
@@ -442,31 +442,99 @@ export default function Dashboard() {
             </Card>
 
             {/* Theme */}
-            <Card className="p-6 space-y-4 glass">
-              <h3 className="font-semibold text-lg">{t("db.set.colors")}</h3>
-              <p className="text-xs text-muted-foreground">{t("db.set.colors.desc")}</p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {themes.map((th) => {
-                  const active = theme === th.key;
-                  return (
-                    <button
-                      key={th.key}
-                      onClick={() => setTheme(th.key)}
-                      className={`group relative rounded-xl border p-4 text-start transition-all ${
-                        active ? "border-primary ring-2 ring-primary/40" : "border-border hover:border-primary/50"
-                      }`}
-                    >
-                      <div
-                        className="h-10 w-full rounded-lg mb-3"
-                        style={{ background: `linear-gradient(135deg, hsl(${th.swatch}), hsl(${th.swatch} / 0.6))` }}
-                      />
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium text-sm">{th.label}</span>
-                        {active && <CheckCircle2 className="h-4 w-4 text-primary" />}
-                      </div>
-                    </button>
-                  );
-                })}
+            <Card className="p-6 space-y-5 glass">
+              <div>
+                <h3 className="font-semibold text-lg">{t("db.set.colors")}</h3>
+                <p className="text-xs text-muted-foreground">{t("db.set.colors.desc")}</p>
+              </div>
+
+              {/* Mode */}
+              <div className="space-y-2">
+                <Label className="text-sm">{t("db.set.mode")}</Label>
+                <div className="flex gap-2">
+                  <Button type="button" variant={state.mode === "dark" ? "hero" : "outline"} size="sm" onClick={() => setMode("dark")}>{t("db.set.mode.dark")}</Button>
+                  <Button type="button" variant={state.mode === "light" ? "hero" : "outline"} size="sm" onClick={() => setMode("light")}>{t("db.set.mode.light")}</Button>
+                </div>
+              </div>
+
+              {/* Presets */}
+              <div className="space-y-2">
+                <Label className="text-sm">{t("db.set.presets")}</Label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {themes.map((th) => {
+                    const active = state.preset === th.key;
+                    return (
+                      <button
+                        key={th.key}
+                        type="button"
+                        onClick={() => setPreset(th.key)}
+                        className={`group relative rounded-xl border p-4 text-start transition-all ${
+                          active ? "border-primary ring-2 ring-primary/40" : "border-border hover:border-primary/50"
+                        }`}
+                      >
+                        <div
+                          className="h-10 w-full rounded-lg mb-3"
+                          style={{ background: `linear-gradient(135deg, hsl(${th.swatch}), hsl(${th.swatch} / 0.6))` }}
+                        />
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium text-sm">{th.label}</span>
+                          {active && <CheckCircle2 className="h-4 w-4 text-primary" />}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Custom colors */}
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-sm">{t("db.set.primary")}</Label>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="color"
+                      value={hslToHex(state.primary)}
+                      onChange={(e) => setPrimaryHex(e.target.value)}
+                      className="h-10 w-14 rounded-md border border-border bg-transparent cursor-pointer"
+                      aria-label={t("db.set.primary")}
+                    />
+                    <span className="text-xs font-mono text-muted-foreground">{hslToHex(state.primary)}</span>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm">{t("db.set.accent")}</Label>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="color"
+                      value={hslToHex(state.accent)}
+                      onChange={(e) => setAccentHex(e.target.value)}
+                      className="h-10 w-14 rounded-md border border-border bg-transparent cursor-pointer"
+                      aria-label={t("db.set.accent")}
+                    />
+                    <span className="text-xs font-mono text-muted-foreground">{hslToHex(state.accent)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Background hue */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm">{t("db.set.bgHue")}</Label>
+                  <span className="text-xs font-mono text-muted-foreground">{state.bgHue}°</span>
+                </div>
+                <input
+                  type="range"
+                  min={0}
+                  max={360}
+                  value={state.bgHue}
+                  onChange={(e) => setBgHue(parseInt(e.target.value, 10))}
+                  className="w-full accent-primary"
+                  style={{ background: "linear-gradient(to right, hsl(0 70% 50%), hsl(60 70% 50%), hsl(120 70% 50%), hsl(180 70% 50%), hsl(240 70% 50%), hsl(300 70% 50%), hsl(360 70% 50%))", borderRadius: 9999, height: 8 }}
+                />
+              </div>
+
+              <div>
+                <Button type="button" variant="outline" size="sm" onClick={reset}>{t("db.set.reset")}</Button>
               </div>
             </Card>
           </div>
