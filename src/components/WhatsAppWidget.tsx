@@ -22,7 +22,7 @@ export const WhatsAppWidget = () => {
 
   const buildWhatsAppUrl = (text: string) => {
     const enc = encodeURIComponent(text);
-    return `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${enc}`;
+    return `https://wa.me/${WHATSAPP_NUMBER}?text=${enc}`;
   };
 
   const trackWhatsAppClick = () => {
