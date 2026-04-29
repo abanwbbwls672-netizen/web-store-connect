@@ -154,6 +154,8 @@ const dict = {
     "db.set.password.new": "New password",
     "db.set.password.confirm": "Confirm new password",
     "db.set.password.update": "Update password",
+    "db.set.password.show": "Show password",
+    "db.set.password.hide": "Hide password",
     "db.set.colors": "Site colors",
     "db.set.colors.desc": "Choose a color theme. Applies instantly across the site.",
 
@@ -321,6 +323,8 @@ const dict = {
     "db.set.password.new": "كلمة المرور الجديدة",
     "db.set.password.confirm": "تأكيد كلمة المرور",
     "db.set.password.update": "تحديث كلمة المرور",
+    "db.set.password.show": "إظهار كلمة المرور",
+    "db.set.password.hide": "إخفاء كلمة المرور",
     "db.set.colors": "ألوان الموقع",
     "db.set.colors.desc": "اختر ثيم الألوان. يُطبَّق فورًا في جميع أنحاء الموقع.",
 
