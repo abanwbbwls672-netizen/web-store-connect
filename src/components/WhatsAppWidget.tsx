@@ -30,7 +30,9 @@ export const WhatsAppWidget = () => {
       const key = "wa_clicks";
       const n = Number(localStorage.getItem(key) || "0") + 1;
       localStorage.setItem(key, String(n));
-    } catch {}
+    } catch {
+      console.warn("Unable to store WhatsApp click locally");
+    }
   };
 
   const whatsappHref = buildWhatsAppUrl(message.trim() || t("wa.default"));
@@ -48,7 +50,9 @@ export const WhatsAppWidget = () => {
       ta.value = text;
       document.body.appendChild(ta);
       ta.select();
-      try { document.execCommand("copy"); toast.success(t("wa.copied")); } catch {}
+      try { document.execCommand("copy"); toast.success(t("wa.copied")); } catch {
+        console.warn("Unable to copy WhatsApp message");
+      }
       document.body.removeChild(ta);
     }
   };
