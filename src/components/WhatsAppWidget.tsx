@@ -20,35 +20,20 @@ export const WhatsAppWidget = () => {
     return () => clearTimeout(tm);
   }, []);
 
-  const buildUrls = (text: string) => {
+  const buildWhatsAppUrl = (text: string) => {
     const enc = encodeURIComponent(text);
-    return {
-      // api.whatsapp.com is more reliable across browsers and avoids many "blocked" cases
-      api: `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${enc}`,
-      wa: `https://wa.me/${WHATSAPP_NUMBER}?text=${enc}`,
-    };
+    return `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${enc}`;
   };
 
-  const sendToWhatsApp = () => {
-    const text = message.trim() || t("wa.default");
-    const { api, wa } = buildUrls(text);
+  const trackWhatsAppClick = () => {
     try {
       const key = "wa_clicks";
       const n = Number(localStorage.getItem(key) || "0") + 1;
       localStorage.setItem(key, String(n));
     } catch {}
-
-    // Try api.whatsapp.com first (better cross-browser support)
-    const w = window.open(api, "_blank", "noopener,noreferrer");
-    // If blocked, fallback to wa.me via top-level navigation
-    if (!w || w.closed || typeof w.closed === "undefined") {
-      try {
-        window.location.href = wa;
-      } catch {
-        // last resort — show user the manual fallback (already visible in panel)
-      }
-    }
   };
+
+  const whatsappHref = buildWhatsAppUrl(message.trim() || t("wa.default"));
 
   const copyMessage = async () => {
     const text = message.trim() || t("wa.default");
@@ -108,11 +93,11 @@ export const WhatsAppWidget = () => {
               className="mt-4 w-full resize-none rounded-xl bg-background border border-border px-3 py-2.5 text-sm focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all"
             />
 
-            <button onClick={sendToWhatsApp}
+            <a href={whatsappHref} target="_blank" rel="noopener noreferrer" onClick={trackWhatsAppClick}
               className="mt-3 w-full bg-gradient-primary text-primary-foreground font-semibold rounded-xl py-3 flex items-center justify-center gap-2 hover:shadow-glow transition-all duration-300">
               <Send className="h-4 w-4" />
               {t("wa.send")}
-            </button>
+            </a>
 
             <button onClick={copyMessage}
               className="mt-2 w-full bg-secondary text-foreground font-medium rounded-xl py-2.5 flex items-center justify-center gap-2 hover:bg-secondary/80 transition-all duration-300 text-sm">
