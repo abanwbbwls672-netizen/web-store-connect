@@ -85,6 +85,10 @@ const dict = {
     "wa.send": "Send via WhatsApp",
     "wa.powered": "Powered by",
     "wa.default": "Hi! I came from your portfolio and I'd like to discuss a project.",
+    "wa.copy": "Copy message",
+    "wa.copied": "Message copied!",
+    "wa.number": "WhatsApp number",
+    "wa.fallback": "If WhatsApp didn't open, copy the message and contact us directly:",
 
     "db.signout": "Sign out",
     "db.section.overview": "Overview",
@@ -262,6 +266,10 @@ const dict = {
     "wa.send": "إرسال عبر واتساب",
     "wa.powered": "مدعوم بواسطة",
     "wa.default": "مرحبًا! وصلت من معرض أعمالك وأود مناقشة مشروع.",
+    "wa.copy": "نسخ الرسالة",
+    "wa.copied": "تم نسخ الرسالة!",
+    "wa.number": "رقم الواتساب",
+    "wa.fallback": "لو واتساب ما فتحش، انسخ الرسالة وتواصل معنا مباشرة:",
 
     "db.signout": "تسجيل الخروج",
     "db.section.overview": "نظرة عامة",

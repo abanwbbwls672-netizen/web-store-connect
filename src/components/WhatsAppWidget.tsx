@@ -1,15 +1,18 @@
 import { useEffect, useState } from "react";
-import { MessageCircle, X, Send } from "lucide-react";
+import { MessageCircle, X, Send, Copy, Check, Phone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/hooks/useI18n";
+import { toast } from "sonner";
 
 const WHATSAPP_NUMBER = "201226601882";
+const DISPLAY_NUMBER = "+20 122 660 1882";
 
 export const WhatsAppWidget = () => {
   const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [pulse, setPulse] = useState(true);
   const [message, setMessage] = useState("");
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => { setMessage(t("wa.default")); }, [t]);
   useEffect(() => {
@@ -17,14 +20,52 @@ export const WhatsAppWidget = () => {
     return () => clearTimeout(tm);
   }, []);
 
+  const buildUrls = (text: string) => {
+    const enc = encodeURIComponent(text);
+    return {
+      // api.whatsapp.com is more reliable across browsers and avoids many "blocked" cases
+      api: `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${enc}`,
+      wa: `https://wa.me/${WHATSAPP_NUMBER}?text=${enc}`,
+    };
+  };
+
   const sendToWhatsApp = () => {
-    const text = encodeURIComponent(message.trim() || t("wa.default"));
+    const text = message.trim() || t("wa.default");
+    const { api, wa } = buildUrls(text);
     try {
       const key = "wa_clicks";
       const n = Number(localStorage.getItem(key) || "0") + 1;
       localStorage.setItem(key, String(n));
     } catch {}
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${text}`, "_blank", "noopener,noreferrer");
+
+    // Try api.whatsapp.com first (better cross-browser support)
+    const w = window.open(api, "_blank", "noopener,noreferrer");
+    // If blocked, fallback to wa.me via top-level navigation
+    if (!w || w.closed || typeof w.closed === "undefined") {
+      try {
+        window.location.href = wa;
+      } catch {
+        // last resort — show user the manual fallback (already visible in panel)
+      }
+    }
+  };
+
+  const copyMessage = async () => {
+    const text = message.trim() || t("wa.default");
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      toast.success(t("wa.copied"));
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // fallback
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand("copy"); toast.success(t("wa.copied")); } catch {}
+      document.body.removeChild(ta);
+    }
   };
 
   return (
@@ -72,6 +113,25 @@ export const WhatsAppWidget = () => {
               <Send className="h-4 w-4" />
               {t("wa.send")}
             </button>
+
+            <button onClick={copyMessage}
+              className="mt-2 w-full bg-secondary text-foreground font-medium rounded-xl py-2.5 flex items-center justify-center gap-2 hover:bg-secondary/80 transition-all duration-300 text-sm">
+              {copied ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
+              {t("wa.copy")}
+            </button>
+
+            <div className="mt-3 rounded-xl border border-border bg-background/50 p-3">
+              <p className="text-[11px] text-muted-foreground mb-1.5">{t("wa.fallback")}</p>
+              <a
+                href={`tel:+${WHATSAPP_NUMBER}`}
+                className="flex items-center gap-2 text-sm font-semibold text-primary hover:underline"
+                aria-label={t("wa.number")}
+              >
+                <Phone className="h-3.5 w-3.5" />
+                <span dir="ltr">{DISPLAY_NUMBER}</span>
+              </a>
+            </div>
+
             <p className="mt-3 text-[11px] text-muted-foreground text-center">
               {t("wa.powered")} <span className="font-medium text-foreground">Web Store</span>
             </p>
