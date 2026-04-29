@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, FolderKanban, MessageSquare, MessageCircle, BarChart3, Settings,
   LogOut, Code2, Loader2, Plus, Edit, Trash2, ExternalLink, Mail, Phone, CheckCircle2,
-  FolderKanban as FolderIcon, MousePointerClick, TrendingUp, Languages,
+  FolderKanban as FolderIcon, MousePointerClick, TrendingUp, Languages, Eye, EyeOff,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -59,6 +59,7 @@ export default function Dashboard() {
   // Password change
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [pwLoading, setPwLoading] = useState(false);
 
   // Data
@@ -417,8 +418,24 @@ export default function Dashboard() {
             <Card className="p-6 space-y-4 glass">
               <h3 className="font-semibold text-lg">{t("db.set.password")}</h3>
               <p className="text-xs text-muted-foreground">{t("db.set.password.hint")}</p>
-              <div><Label>{t("db.set.password.new")}</Label><Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="••••••••" /></div>
-              <div><Label>{t("db.set.password.confirm")}</Label><Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" /></div>
+              <div>
+                <Label>{t("db.set.password.new")}</Label>
+                <div className="relative">
+                  <Input type={showPassword ? "text" : "password"} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="••••••••" className="pr-10 rtl:pr-3 rtl:pl-10" />
+                  <button type="button" onClick={() => setShowPassword((s) => !s)} className="absolute inset-y-0 end-0 flex items-center px-3 text-muted-foreground hover:text-foreground" aria-label={showPassword ? t("db.set.password.hide") : t("db.set.password.show")}>
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+              <div>
+                <Label>{t("db.set.password.confirm")}</Label>
+                <div className="relative">
+                  <Input type={showPassword ? "text" : "password"} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" className="pr-10 rtl:pr-3 rtl:pl-10" />
+                  <button type="button" onClick={() => setShowPassword((s) => !s)} className="absolute inset-y-0 end-0 flex items-center px-3 text-muted-foreground hover:text-foreground" aria-label={showPassword ? t("db.set.password.hide") : t("db.set.password.show")}>
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
               <Button variant="hero" onClick={changePassword} disabled={pwLoading}>
                 {pwLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null} {t("db.set.password.update")}
               </Button>
