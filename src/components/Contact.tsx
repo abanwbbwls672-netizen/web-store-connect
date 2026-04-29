@@ -35,7 +35,7 @@ export const Contact = () => {
     }, 700);
   };
 
-  const waLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(t("wa.default"))}`;
+  const waLink = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(t("wa.default"))}`;
 
   return (
     <section id="contact" className="py-24 sm:py-32 relative">
