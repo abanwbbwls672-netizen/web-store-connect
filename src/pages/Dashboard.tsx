@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useTheme, themes } from "@/hooks/useTheme";
+import { useTheme, themes, hslToHex } from "@/hooks/useTheme";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -51,7 +51,7 @@ const emptyProject = { title: "", description: "", image_url: "", link_url: "", 
 
 export default function Dashboard() {
   const { user, isAdmin, loading, signOut } = useAuth();
-  const { theme, setTheme } = useTheme();
+  const { state, setMode, setPreset, setPrimaryHex, setAccentHex, setBgHue, reset } = useTheme();
   const { t, lang, toggle } = useI18n();
   const navigate = useNavigate();
   const [section, setSection] = useState<string>("overview");
