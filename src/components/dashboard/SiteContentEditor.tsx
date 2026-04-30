@@ -78,8 +78,8 @@ export default function SiteContentEditor({ userId }: { userId: string }) {
     const payload: Record<string, any> = { user_id: userId, is_published: true };
     FIELDS.forEach((f) => (payload[f.key] = content[f.key]?.trim() || null));
     const { error } = hasRow
-      ? await supabase.from("site_content").update(payload).eq("user_id", userId)
-      : await supabase.from("site_content").insert(payload);
+      ? await supabase.from("site_content").update(payload as any).eq("user_id", userId)
+      : await supabase.from("site_content").insert(payload as any);
     setSaving(false);
     if (error) {
       toast.error(error.message);
