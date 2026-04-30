@@ -1,8 +1,12 @@
 import { Cpu, Layers, Rocket, ShieldCheck } from "lucide-react";
 import { useI18n } from "@/hooks/useI18n";
+import { useSiteContent } from "@/hooks/useSiteContent";
 
 export const About = () => {
   const { t } = useI18n();
+  const { content } = useSiteContent();
+  const v = (key: keyof NonNullable<typeof content>, fallback: string) => (content?.[key] as string) || fallback;
+
   const features = [
     { icon: Rocket, title: t("about.f.fast.t"), desc: t("about.f.fast.d") },
     { icon: Layers, title: t("about.f.scale.t"), desc: t("about.f.scale.d") },
@@ -16,11 +20,11 @@ export const About = () => {
           <div className="animate-fade-up">
             <div className="text-xs font-mono uppercase tracking-[0.2em] text-primary mb-4">{t("about.tag")}</div>
             <h2 className="text-3xl sm:text-5xl font-bold tracking-tight">
-              {t("about.title.1")} <br />
-              {t("about.title.2")} <span className="text-gradient">{t("about.title.serious")}</span>.
+              {v("about_title_1", t("about.title.1"))} <br />
+              {v("about_title_2", t("about.title.2"))} <span className="text-gradient">{v("about_title_serious", t("about.title.serious"))}</span>.
             </h2>
-            <p className="mt-6 text-muted-foreground leading-relaxed">{t("about.p1")}</p>
-            <p className="mt-4 text-muted-foreground leading-relaxed">{t("about.p2")}</p>
+            <p className="mt-6 text-muted-foreground leading-relaxed">{v("about_p1", t("about.p1"))}</p>
+            <p className="mt-4 text-muted-foreground leading-relaxed">{v("about_p2", t("about.p2"))}</p>
           </div>
 
           <div className="grid sm:grid-cols-2 gap-4">
