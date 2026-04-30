@@ -6,8 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useI18n } from "@/hooks/useI18n";
+import { useSiteContent } from "@/hooks/useSiteContent";
 
-const WHATSAPP_NUMBER = "201226601882";
+const FALLBACK_NUMBER = "201226601882";
 
 const schema = z.object({
   name: z.string().trim().min(2).max(80),
@@ -17,6 +18,7 @@ const schema = z.object({
 
 export const Contact = () => {
   const { t } = useI18n();
+  const { content, whatsapp } = useSiteContent();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", message: "" });
 
@@ -35,7 +37,12 @@ export const Contact = () => {
     }, 700);
   };
 
-  const waLink = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(t("wa.default"))}`;
+  const phone = whatsapp?.phone_number || FALLBACK_NUMBER;
+  const displayPhone = content?.contact_whatsapp_display || "+20 122 660 1882";
+  const displayEmail = content?.contact_email || "hello@webstore.dev";
+  const displayLocation = content?.contact_location || t("contact.location.value");
+  const waLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(t("wa.default"))}`;
+
 
   return (
     <section id="contact" className="py-24 sm:py-32 relative">
@@ -54,21 +61,21 @@ export const Contact = () => {
                 <div className="h-10 w-10 rounded-lg bg-primary/10 grid place-items-center text-primary"><MessageCircle className="h-5 w-5" /></div>
                 <div>
                   <div className="text-xs text-muted-foreground">{t("contact.whatsapp")}</div>
-                  <div className="font-medium">+20 122 660 1882</div>
+                  <div className="font-medium">{displayPhone}</div>
                 </div>
               </a>
               <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-card border border-border">
                 <div className="h-10 w-10 rounded-lg bg-primary/10 grid place-items-center text-primary"><Mail className="h-5 w-5" /></div>
                 <div>
                   <div className="text-xs text-muted-foreground">{t("contact.email")}</div>
-                  <div className="font-medium">hello@webstore.dev</div>
+                  <div className="font-medium">{displayEmail}</div>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-card border border-border">
                 <div className="h-10 w-10 rounded-lg bg-primary/10 grid place-items-center text-primary"><MapPin className="h-5 w-5" /></div>
                 <div>
                   <div className="text-xs text-muted-foreground">{t("contact.location")}</div>
-                  <div className="font-medium">{t("contact.location.value")}</div>
+                  <div className="font-medium">{displayLocation}</div>
                 </div>
               </div>
             </div>

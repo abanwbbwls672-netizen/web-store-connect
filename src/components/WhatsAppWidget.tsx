@@ -2,17 +2,24 @@ import { useEffect, useState } from "react";
 import { MessageCircle, X, Send, Copy, Check, Phone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/hooks/useI18n";
+import { useSiteContent } from "@/hooks/useSiteContent";
 import { toast } from "sonner";
 
-const WHATSAPP_NUMBER = "201226601882";
-const DISPLAY_NUMBER = "+20 122 660 1882";
+const FALLBACK_NUMBER = "201226601882";
+const FALLBACK_DISPLAY = "+20 122 660 1882";
 
 export const WhatsAppWidget = () => {
   const { t } = useI18n();
+  const { whatsapp, content } = useSiteContent();
   const [open, setOpen] = useState(false);
   const [pulse, setPulse] = useState(true);
   const [message, setMessage] = useState("");
   const [copied, setCopied] = useState(false);
+
+  const phone = whatsapp?.phone_number || FALLBACK_NUMBER;
+  const displayNumber = content?.contact_whatsapp_display || FALLBACK_DISPLAY;
+  const greeting = whatsapp?.greeting_message || t("wa.greet");
+  const isEnabled = whatsapp ? whatsapp.is_enabled : true;
 
   useEffect(() => { setMessage(t("wa.default")); }, [t]);
   useEffect(() => {
@@ -22,7 +29,7 @@ export const WhatsAppWidget = () => {
 
   const buildWhatsAppUrl = (text: string) => {
     const enc = encodeURIComponent(text);
-    return `https://wa.me/${WHATSAPP_NUMBER}?text=${enc}`;
+    return `https://wa.me/${phone}?text=${enc}`;
   };
 
   const trackWhatsAppClick = () => {
