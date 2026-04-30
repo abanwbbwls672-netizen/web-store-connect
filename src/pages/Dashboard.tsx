@@ -302,6 +302,15 @@ export default function Dashboard() {
           )}
         </section>
 
+        {/* MEDIA */}
+        <section id="media" className={section === "media" ? "" : "hidden"}>
+          <div className="mb-6">
+            <h2 className="text-3xl font-bold">{t("db.media.title")}</h2>
+            <p className="text-muted-foreground">{t("db.media.desc")}</p>
+          </div>
+          <MediaLibrary userId={user.id} />
+        </section>
+
         {/* MESSAGES */}
         <section id="messages" className={section === "messages" ? "" : "hidden"}>
           <div className="mb-6">
