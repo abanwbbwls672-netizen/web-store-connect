@@ -64,6 +64,8 @@ export const WhatsAppWidget = () => {
     }
   };
 
+  if (!isEnabled) return null;
+
   return (
     <>
       <div
