@@ -146,6 +146,135 @@ export type Database = {
         }
         Relationships: []
       }
+      site_content: {
+        Row: {
+          about_p1: string | null
+          about_p2: string | null
+          about_title_1: string | null
+          about_title_2: string | null
+          about_title_serious: string | null
+          brand_name: string | null
+          contact_email: string | null
+          contact_location: string | null
+          contact_whatsapp_display: string | null
+          created_at: string
+          hero_badge: string | null
+          hero_cta_start: string | null
+          hero_cta_view: string | null
+          hero_desc: string | null
+          hero_stat_clients: string | null
+          hero_stat_clients_value: string | null
+          hero_stat_projects: string | null
+          hero_stat_projects_value: string | null
+          hero_stat_uptime: string | null
+          hero_stat_uptime_value: string | null
+          hero_stat_years: string | null
+          hero_stat_years_value: string | null
+          hero_title_1: string | null
+          hero_title_2: string | null
+          hero_title_precision: string | null
+          id: string
+          is_published: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          about_p1?: string | null
+          about_p2?: string | null
+          about_title_1?: string | null
+          about_title_2?: string | null
+          about_title_serious?: string | null
+          brand_name?: string | null
+          contact_email?: string | null
+          contact_location?: string | null
+          contact_whatsapp_display?: string | null
+          created_at?: string
+          hero_badge?: string | null
+          hero_cta_start?: string | null
+          hero_cta_view?: string | null
+          hero_desc?: string | null
+          hero_stat_clients?: string | null
+          hero_stat_clients_value?: string | null
+          hero_stat_projects?: string | null
+          hero_stat_projects_value?: string | null
+          hero_stat_uptime?: string | null
+          hero_stat_uptime_value?: string | null
+          hero_stat_years?: string | null
+          hero_stat_years_value?: string | null
+          hero_title_1?: string | null
+          hero_title_2?: string | null
+          hero_title_precision?: string | null
+          id?: string
+          is_published?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          about_p1?: string | null
+          about_p2?: string | null
+          about_title_1?: string | null
+          about_title_2?: string | null
+          about_title_serious?: string | null
+          brand_name?: string | null
+          contact_email?: string | null
+          contact_location?: string | null
+          contact_whatsapp_display?: string | null
+          created_at?: string
+          hero_badge?: string | null
+          hero_cta_start?: string | null
+          hero_cta_view?: string | null
+          hero_desc?: string | null
+          hero_stat_clients?: string | null
+          hero_stat_clients_value?: string | null
+          hero_stat_projects?: string | null
+          hero_stat_projects_value?: string | null
+          hero_stat_uptime?: string | null
+          hero_stat_uptime_value?: string | null
+          hero_stat_years?: string | null
+          hero_stat_years_value?: string | null
+          hero_title_1?: string | null
+          hero_title_2?: string | null
+          hero_title_precision?: string | null
+          id?: string
+          is_published?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      site_skills: {
+        Row: {
+          created_at: string
+          group_title: string
+          id: string
+          is_published: boolean
+          items: string[]
+          sort_order: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          group_title: string
+          id?: string
+          is_published?: boolean
+          items?: string[]
+          sort_order?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          group_title?: string
+          id?: string
+          is_published?: boolean
+          items?: string[]
+          sort_order?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
