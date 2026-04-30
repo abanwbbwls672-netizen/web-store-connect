@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, FolderKanban, MessageSquare, MessageCircle, BarChart3, Settings,
   LogOut, Code2, Loader2, Plus, Edit, Trash2, ExternalLink, Mail, Phone, CheckCircle2,
-  FolderKanban as FolderIcon, MousePointerClick, TrendingUp, Languages, Eye, EyeOff,
+  FolderKanban as FolderIcon, MousePointerClick, TrendingUp, Languages, Eye, EyeOff, Image as ImageIcon,
 } from "lucide-react";
+import MediaLibrary from "@/components/dashboard/MediaLibrary";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme, themes, hslToHex } from "@/hooks/useTheme";
@@ -29,6 +30,7 @@ type Click = { id: string; created_at: string; country: string | null; source: s
 const sections = [
   { id: "overview", labelKey: "db.section.overview", icon: LayoutDashboard },
   { id: "projects", labelKey: "db.section.projects", icon: FolderKanban },
+  { id: "media", labelKey: "db.section.media", icon: ImageIcon },
   { id: "messages", labelKey: "db.section.messages", icon: MessageSquare },
   { id: "whatsapp", labelKey: "db.section.whatsapp", icon: MessageCircle },
   { id: "analytics", labelKey: "db.section.analytics", icon: BarChart3 },
@@ -298,6 +300,15 @@ export default function Dashboard() {
               ))}
             </div>
           )}
+        </section>
+
+        {/* MEDIA */}
+        <section id="media" className={section === "media" ? "" : "hidden"}>
+          <div className="mb-6">
+            <h2 className="text-3xl font-bold">{t("db.media.title")}</h2>
+            <p className="text-muted-foreground">{t("db.media.desc")}</p>
+          </div>
+          <MediaLibrary userId={user.id} />
         </section>
 
         {/* MESSAGES */}
