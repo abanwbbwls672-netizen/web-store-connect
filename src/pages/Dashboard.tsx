@@ -304,6 +304,15 @@ export default function Dashboard() {
           )}
         </section>
 
+        {/* CONTENT */}
+        <section id="content" className={section === "content" ? "" : "hidden"}>
+          <div className="mb-6">
+            <h2 className="text-3xl font-bold">{t("sc.title")}</h2>
+            <p className="text-muted-foreground">{t("sc.desc")}</p>
+          </div>
+          <SiteContentEditor userId={user.id} />
+        </section>
+
         {/* MEDIA */}
         <section id="media" className={section === "media" ? "" : "hidden"}>
           <div className="mb-6">
