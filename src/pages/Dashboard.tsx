@@ -3,9 +3,10 @@ import { useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, FolderKanban, MessageSquare, MessageCircle, BarChart3, Settings,
   LogOut, Code2, Loader2, Plus, Edit, Trash2, ExternalLink, Mail, Phone, CheckCircle2,
-  FolderKanban as FolderIcon, MousePointerClick, TrendingUp, Languages, Eye, EyeOff, Image as ImageIcon,
+  FolderKanban as FolderIcon, MousePointerClick, TrendingUp, Languages, Eye, EyeOff, Image as ImageIcon, FileText,
 } from "lucide-react";
 import MediaLibrary from "@/components/dashboard/MediaLibrary";
+import SiteContentEditor from "@/components/dashboard/SiteContentEditor";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme, themes, hslToHex } from "@/hooks/useTheme";
@@ -29,6 +30,7 @@ type Click = { id: string; created_at: string; country: string | null; source: s
 
 const sections = [
   { id: "overview", labelKey: "db.section.overview", icon: LayoutDashboard },
+  { id: "content", labelKey: "db.section.content", icon: FileText },
   { id: "projects", labelKey: "db.section.projects", icon: FolderKanban },
   { id: "media", labelKey: "db.section.media", icon: ImageIcon },
   { id: "messages", labelKey: "db.section.messages", icon: MessageSquare },
