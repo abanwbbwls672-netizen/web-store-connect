@@ -379,6 +379,21 @@ const dict = {
     "db.toast.pwShort": "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
     "db.toast.pwMismatch": "كلمتا المرور غير متطابقتين",
     "db.toast.pwUpdated": "تم تحديث كلمة المرور بنجاح",
+
+    "db.section.media": "الوسائط",
+    "db.media.title": "مكتبة الوسائط",
+    "db.media.desc": "ارفع وأدر الصور والفيديوهات.",
+    "db.media.dropTitle": "اسحب الملفات هنا أو اضغط للرفع",
+    "db.media.dropHint": "صور (JPG, PNG, WEBP, GIF, SVG) وفيديوهات (MP4, WEBM, MOV) حتى 100 ميجا.",
+    "db.media.choose": "اختر الملفات",
+    "db.media.search": "بحث في الملفات…",
+    "db.media.empty": "لا توجد وسائط بعد.",
+    "db.media.uploaded": "تم الرفع",
+    "db.media.tooLarge": "الملف كبير جدًا (الحد 100 ميجا)",
+    "db.media.badType": "نوع الملف غير مسموح",
+    "db.media.confirmDel": "حذف هذا الملف؟",
+    "db.media.copyUrl": "نسخ الرابط",
+    "db.media.urlCopied": "تم نسخ الرابط",
   },
 } as const;
 
