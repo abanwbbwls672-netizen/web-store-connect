@@ -30,6 +30,7 @@ type Click = { id: string; created_at: string; country: string | null; source: s
 const sections = [
   { id: "overview", labelKey: "db.section.overview", icon: LayoutDashboard },
   { id: "projects", labelKey: "db.section.projects", icon: FolderKanban },
+  { id: "media", labelKey: "db.section.media", icon: ImageIcon },
   { id: "messages", labelKey: "db.section.messages", icon: MessageSquare },
   { id: "whatsapp", labelKey: "db.section.whatsapp", icon: MessageCircle },
   { id: "analytics", labelKey: "db.section.analytics", icon: BarChart3 },
