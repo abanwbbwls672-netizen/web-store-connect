@@ -92,7 +92,7 @@ export const WhatsAppWidget = () => {
             <div className="flex gap-2">
               <div className="h-8 w-8 rounded-full bg-gradient-primary shrink-0 grid place-items-center text-primary-foreground text-xs font-bold">W</div>
               <div className="bg-secondary text-foreground text-sm rounded-2xl rounded-tl-sm px-3.5 py-2.5 max-w-[85%]">
-                {t("wa.greet")}
+                {greeting}
               </div>
             </div>
 
@@ -119,12 +119,12 @@ export const WhatsAppWidget = () => {
             <div className="mt-3 rounded-xl border border-border bg-background/50 p-3">
               <p className="text-[11px] text-muted-foreground mb-1.5">{t("wa.fallback")}</p>
               <a
-                href={`tel:+${WHATSAPP_NUMBER}`}
+                href={`tel:+${phone}`}
                 className="flex items-center gap-2 text-sm font-semibold text-primary hover:underline"
                 aria-label={t("wa.number")}
               >
                 <Phone className="h-3.5 w-3.5" />
-                <span dir="ltr">{DISPLAY_NUMBER}</span>
+                <span dir="ltr">{displayNumber}</span>
               </a>
             </div>
 
