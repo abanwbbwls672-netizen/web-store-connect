@@ -1,13 +1,20 @@
 import { useI18n } from "@/hooks/useI18n";
+import { useSiteContent } from "@/hooks/useSiteContent";
 
 export const Skills = () => {
   const { t } = useI18n();
-  const skillGroups = [
+  const { skills } = useSiteContent();
+
+  const fallback = [
     { title: t("skills.frontend"), items: ["React", "TypeScript", "Vite", "Tailwind CSS", "Framer Motion"] },
     { title: t("skills.backend"), items: ["Node.js", "Edge Functions", "REST", "GraphQL", "WebSockets", "JWT Auth"] },
     { title: t("skills.database"), items: ["PostgreSQL", "Row-Level Security", "Redis", "Prisma", "SQL"] },
     { title: t("skills.devops"), items: ["Git", "CI/CD", "Docker", "Vercel", "Sentry", "Analytics"] },
   ];
+  const skillGroups = skills.length > 0
+    ? skills.map((s) => ({ title: s.group_title, items: s.items }))
+    : fallback;
+
   return (
     <section id="skills" className="py-24 sm:py-32 relative">
       <div className="container">
@@ -21,7 +28,7 @@ export const Skills = () => {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
           {skillGroups.map((g, gi) => (
-            <div key={g.title}
+            <div key={g.title + gi}
               className="bg-gradient-card border border-border rounded-2xl p-6 animate-fade-up"
               style={{ animationDelay: `${0.08 * (gi + 1)}s` }}>
               <div className="text-sm font-semibold mb-4 flex items-center gap-2">

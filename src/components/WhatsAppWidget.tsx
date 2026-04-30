@@ -2,17 +2,24 @@ import { useEffect, useState } from "react";
 import { MessageCircle, X, Send, Copy, Check, Phone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/hooks/useI18n";
+import { useSiteContent } from "@/hooks/useSiteContent";
 import { toast } from "sonner";
 
-const WHATSAPP_NUMBER = "201226601882";
-const DISPLAY_NUMBER = "+20 122 660 1882";
+const FALLBACK_NUMBER = "201226601882";
+const FALLBACK_DISPLAY = "+20 122 660 1882";
 
 export const WhatsAppWidget = () => {
   const { t } = useI18n();
+  const { whatsapp, content } = useSiteContent();
   const [open, setOpen] = useState(false);
   const [pulse, setPulse] = useState(true);
   const [message, setMessage] = useState("");
   const [copied, setCopied] = useState(false);
+
+  const phone = whatsapp?.phone_number || FALLBACK_NUMBER;
+  const displayNumber = content?.contact_whatsapp_display || FALLBACK_DISPLAY;
+  const greeting = whatsapp?.greeting_message || t("wa.greet");
+  const isEnabled = whatsapp ? whatsapp.is_enabled : true;
 
   useEffect(() => { setMessage(t("wa.default")); }, [t]);
   useEffect(() => {
@@ -22,7 +29,7 @@ export const WhatsAppWidget = () => {
 
   const buildWhatsAppUrl = (text: string) => {
     const enc = encodeURIComponent(text);
-    return `https://wa.me/${WHATSAPP_NUMBER}?text=${enc}`;
+    return `https://wa.me/${phone}?text=${enc}`;
   };
 
   const trackWhatsAppClick = () => {
@@ -57,6 +64,8 @@ export const WhatsAppWidget = () => {
     }
   };
 
+  if (!isEnabled) return null;
+
   return (
     <>
       <div
@@ -85,7 +94,7 @@ export const WhatsAppWidget = () => {
             <div className="flex gap-2">
               <div className="h-8 w-8 rounded-full bg-gradient-primary shrink-0 grid place-items-center text-primary-foreground text-xs font-bold">W</div>
               <div className="bg-secondary text-foreground text-sm rounded-2xl rounded-tl-sm px-3.5 py-2.5 max-w-[85%]">
-                {t("wa.greet")}
+                {greeting}
               </div>
             </div>
 
@@ -112,12 +121,12 @@ export const WhatsAppWidget = () => {
             <div className="mt-3 rounded-xl border border-border bg-background/50 p-3">
               <p className="text-[11px] text-muted-foreground mb-1.5">{t("wa.fallback")}</p>
               <a
-                href={`tel:+${WHATSAPP_NUMBER}`}
+                href={`tel:+${phone}`}
                 className="flex items-center gap-2 text-sm font-semibold text-primary hover:underline"
                 aria-label={t("wa.number")}
               >
                 <Phone className="h-3.5 w-3.5" />
-                <span dir="ltr">{DISPLAY_NUMBER}</span>
+                <span dir="ltr">{displayNumber}</span>
               </a>
             </div>
 

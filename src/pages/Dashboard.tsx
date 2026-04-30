@@ -3,9 +3,10 @@ import { useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, FolderKanban, MessageSquare, MessageCircle, BarChart3, Settings,
   LogOut, Code2, Loader2, Plus, Edit, Trash2, ExternalLink, Mail, Phone, CheckCircle2,
-  FolderKanban as FolderIcon, MousePointerClick, TrendingUp, Languages, Eye, EyeOff, Image as ImageIcon,
+  FolderKanban as FolderIcon, MousePointerClick, TrendingUp, Languages, Eye, EyeOff, Image as ImageIcon, FileText,
 } from "lucide-react";
 import MediaLibrary from "@/components/dashboard/MediaLibrary";
+import SiteContentEditor from "@/components/dashboard/SiteContentEditor";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme, themes, hslToHex } from "@/hooks/useTheme";
@@ -29,6 +30,7 @@ type Click = { id: string; created_at: string; country: string | null; source: s
 
 const sections = [
   { id: "overview", labelKey: "db.section.overview", icon: LayoutDashboard },
+  { id: "content", labelKey: "db.section.content", icon: FileText },
   { id: "projects", labelKey: "db.section.projects", icon: FolderKanban },
   { id: "media", labelKey: "db.section.media", icon: ImageIcon },
   { id: "messages", labelKey: "db.section.messages", icon: MessageSquare },
@@ -300,6 +302,15 @@ export default function Dashboard() {
               ))}
             </div>
           )}
+        </section>
+
+        {/* CONTENT */}
+        <section id="content" className={section === "content" ? "" : "hidden"}>
+          <div className="mb-6">
+            <h2 className="text-3xl font-bold">{t("sc.title")}</h2>
+            <p className="text-muted-foreground">{t("sc.desc")}</p>
+          </div>
+          <SiteContentEditor userId={user.id} />
         </section>
 
         {/* MEDIA */}
