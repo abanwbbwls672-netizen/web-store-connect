@@ -365,6 +365,26 @@ export default function Dashboard() {
         </section>
 
 
+        {/* ORDERS */}
+        <section id="orders" className={section === "orders" ? "" : "hidden"}>
+          <div className="mb-6">
+            <h2 className="text-3xl font-bold">{t("db.section.orders")}</h2>
+            <p className="text-muted-foreground">Service requests submitted by visitors.</p>
+          </div>
+          <OrdersManager userId={user.id} />
+        </section>
+
+        {/* USERS (admin only) */}
+        {isAdmin && (
+          <section id="users" className={section === "users" ? "" : "hidden"}>
+            <div className="mb-6">
+              <h2 className="text-3xl font-bold">{t("db.section.users")}</h2>
+              <p className="text-muted-foreground">Manage user accounts and admin roles.</p>
+            </div>
+            <UsersManager currentUserId={user.id} />
+          </section>
+        )}
+
         {/* WHATSAPP */}
         <section id="whatsapp" className={section === "whatsapp" ? "" : "hidden"}>
           <div className="mb-6">
