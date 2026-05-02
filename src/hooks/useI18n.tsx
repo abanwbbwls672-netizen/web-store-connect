@@ -97,6 +97,8 @@ const dict = {
     "db.section.whatsapp": "WhatsApp",
     "db.section.analytics": "Analytics",
     "db.section.settings": "Settings",
+    "db.section.orders": "Orders",
+    "db.section.users": "Users",
 
     "db.overview.title": "Overview",
     "db.overview.desc": "Your activity at a glance.",
