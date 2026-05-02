@@ -4,9 +4,12 @@ import {
   LayoutDashboard, FolderKanban, MessageSquare, MessageCircle, BarChart3, Settings,
   LogOut, Code2, Loader2, Plus, Edit, Trash2, ExternalLink, Mail, Phone, CheckCircle2,
   FolderKanban as FolderIcon, MousePointerClick, TrendingUp, Languages, Eye, EyeOff, Image as ImageIcon, FileText,
+  ShoppingCart, Users,
 } from "lucide-react";
 import MediaLibrary from "@/components/dashboard/MediaLibrary";
 import SiteContentEditor from "@/components/dashboard/SiteContentEditor";
+import OrdersManager from "@/components/dashboard/OrdersManager";
+import UsersManager from "@/components/dashboard/UsersManager";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme, themes, hslToHex } from "@/hooks/useTheme";
@@ -28,15 +31,17 @@ type Project = { id: string; title: string; description: string | null; image_ur
 type Msg = { id: string; sender_name: string; sender_email: string | null; sender_phone: string | null; content: string; source: string; is_read: boolean; created_at: string };
 type Click = { id: string; created_at: string; country: string | null; source: string | null };
 
-const sections = [
-  { id: "overview", labelKey: "db.section.overview", icon: LayoutDashboard },
-  { id: "content", labelKey: "db.section.content", icon: FileText },
-  { id: "projects", labelKey: "db.section.projects", icon: FolderKanban },
-  { id: "media", labelKey: "db.section.media", icon: ImageIcon },
-  { id: "messages", labelKey: "db.section.messages", icon: MessageSquare },
-  { id: "whatsapp", labelKey: "db.section.whatsapp", icon: MessageCircle },
-  { id: "analytics", labelKey: "db.section.analytics", icon: BarChart3 },
-  { id: "settings", labelKey: "db.section.settings", icon: Settings },
+const baseSections = [
+  { id: "overview", labelKey: "db.section.overview", icon: LayoutDashboard, adminOnly: false },
+  { id: "content", labelKey: "db.section.content", icon: FileText, adminOnly: false },
+  { id: "projects", labelKey: "db.section.projects", icon: FolderKanban, adminOnly: false },
+  { id: "orders", labelKey: "db.section.orders", icon: ShoppingCart, adminOnly: false },
+  { id: "media", labelKey: "db.section.media", icon: ImageIcon, adminOnly: false },
+  { id: "messages", labelKey: "db.section.messages", icon: MessageSquare, adminOnly: false },
+  { id: "users", labelKey: "db.section.users", icon: Users, adminOnly: true },
+  { id: "whatsapp", labelKey: "db.section.whatsapp", icon: MessageCircle, adminOnly: false },
+  { id: "analytics", labelKey: "db.section.analytics", icon: BarChart3, adminOnly: false },
+  { id: "settings", labelKey: "db.section.settings", icon: Settings, adminOnly: false },
 ] as const;
 
 const Stat = ({ icon: Icon, label, value, accent }: any) => (
@@ -229,7 +234,7 @@ export default function Dashboard() {
         </div>
         {/* Section tabs */}
         <div className="container flex gap-1 overflow-x-auto pb-2 -mt-1">
-          {sections.map((s) => (
+          {baseSections.filter((s) => !s.adminOnly || isAdmin).map((s) => (
             <button
               key={s.id}
               onClick={() => setSection(s.id)}
@@ -359,6 +364,26 @@ export default function Dashboard() {
           )}
         </section>
 
+
+        {/* ORDERS */}
+        <section id="orders" className={section === "orders" ? "" : "hidden"}>
+          <div className="mb-6">
+            <h2 className="text-3xl font-bold">{t("db.section.orders")}</h2>
+            <p className="text-muted-foreground">Service requests submitted by visitors.</p>
+          </div>
+          <OrdersManager userId={user.id} />
+        </section>
+
+        {/* USERS (admin only) */}
+        {isAdmin && (
+          <section id="users" className={section === "users" ? "" : "hidden"}>
+            <div className="mb-6">
+              <h2 className="text-3xl font-bold">{t("db.section.users")}</h2>
+              <p className="text-muted-foreground">Manage user accounts and admin roles.</p>
+            </div>
+            <UsersManager currentUserId={user.id} />
+          </section>
+        )}
 
         {/* WHATSAPP */}
         <section id="whatsapp" className={section === "whatsapp" ? "" : "hidden"}>
