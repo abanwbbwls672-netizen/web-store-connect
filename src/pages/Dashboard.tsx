@@ -31,15 +31,17 @@ type Project = { id: string; title: string; description: string | null; image_ur
 type Msg = { id: string; sender_name: string; sender_email: string | null; sender_phone: string | null; content: string; source: string; is_read: boolean; created_at: string };
 type Click = { id: string; created_at: string; country: string | null; source: string | null };
 
-const sections = [
-  { id: "overview", labelKey: "db.section.overview", icon: LayoutDashboard },
-  { id: "content", labelKey: "db.section.content", icon: FileText },
-  { id: "projects", labelKey: "db.section.projects", icon: FolderKanban },
-  { id: "media", labelKey: "db.section.media", icon: ImageIcon },
-  { id: "messages", labelKey: "db.section.messages", icon: MessageSquare },
-  { id: "whatsapp", labelKey: "db.section.whatsapp", icon: MessageCircle },
-  { id: "analytics", labelKey: "db.section.analytics", icon: BarChart3 },
-  { id: "settings", labelKey: "db.section.settings", icon: Settings },
+const baseSections = [
+  { id: "overview", labelKey: "db.section.overview", icon: LayoutDashboard, adminOnly: false },
+  { id: "content", labelKey: "db.section.content", icon: FileText, adminOnly: false },
+  { id: "projects", labelKey: "db.section.projects", icon: FolderKanban, adminOnly: false },
+  { id: "orders", labelKey: "db.section.orders", icon: ShoppingCart, adminOnly: false },
+  { id: "media", labelKey: "db.section.media", icon: ImageIcon, adminOnly: false },
+  { id: "messages", labelKey: "db.section.messages", icon: MessageSquare, adminOnly: false },
+  { id: "users", labelKey: "db.section.users", icon: Users, adminOnly: true },
+  { id: "whatsapp", labelKey: "db.section.whatsapp", icon: MessageCircle, adminOnly: false },
+  { id: "analytics", labelKey: "db.section.analytics", icon: BarChart3, adminOnly: false },
+  { id: "settings", labelKey: "db.section.settings", icon: Settings, adminOnly: false },
 ] as const;
 
 const Stat = ({ icon: Icon, label, value, accent }: any) => (
