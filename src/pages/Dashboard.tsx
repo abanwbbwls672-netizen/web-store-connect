@@ -234,7 +234,7 @@ export default function Dashboard() {
         </div>
         {/* Section tabs */}
         <div className="container flex gap-1 overflow-x-auto pb-2 -mt-1">
-          {sections.map((s) => (
+          {baseSections.filter((s) => !s.adminOnly || isAdmin).map((s) => (
             <button
               key={s.id}
               onClick={() => setSection(s.id)}
