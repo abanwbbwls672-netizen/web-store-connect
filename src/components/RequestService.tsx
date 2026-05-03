@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { z } from "zod";
-import { Send, ClipboardList } from "lucide-react";
+import { ClipboardList } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -28,16 +28,35 @@ const SERVICES = [
   "Other",
 ];
 
+const STR = {
+  en: {
+    tag: "REQUEST A SERVICE",
+    t1: "Start your", t2: "project",
+    desc: "Tell us about your idea — we'll get back within 24 hours.",
+    service: "Service", servicePh: "Choose a service",
+    name: "Your name", phone: "Phone (optional)", email: "Email (optional)",
+    notes: "Project details", submit: "Send request", sending: "Sending…",
+    success: "Request received! We'll contact you shortly.",
+  },
+  ar: {
+    tag: "اطلب خدمة",
+    t1: "ابدأ", t2: "مشروعك",
+    desc: "احكِ لنا عن فكرتك — هنرد عليك خلال 24 ساعة.",
+    service: "الخدمة", servicePh: "اختر الخدمة",
+    name: "اسمك", phone: "الهاتف (اختياري)", email: "البريد (اختياري)",
+    notes: "تفاصيل المشروع", submit: "إرسال الطلب", sending: "جاري الإرسال…",
+    success: "تم استلام طلبك! هنتواصل معاك قريباً.",
+  },
+};
+
 export const RequestService = () => {
-  const { t, dir } = useI18n();
+  const { lang } = useI18n();
+  const s = STR[lang as "en" | "ar"] ?? STR.en;
+  const dir = lang === "ar" ? "rtl" : "ltr";
   const { ownerId } = useSiteContent();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
-    service_title: "",
-    customer_name: "",
-    customer_email: "",
-    customer_phone: "",
-    notes: "",
+    service_title: "", customer_name: "", customer_email: "", customer_phone: "", notes: "",
   });
 
   const submit = async (e: React.FormEvent) => {
@@ -56,7 +75,7 @@ export const RequestService = () => {
     });
     setLoading(false);
     if (error) return toast.error(error.message);
-    toast.success(t("order.success"));
+    toast.success(s.success);
     setForm({ service_title: "", customer_name: "", customer_email: "", customer_phone: "", notes: "" });
   };
 
@@ -64,57 +83,42 @@ export const RequestService = () => {
     <section id="request" className="py-24 sm:py-32 relative" dir={dir}>
       <div className="container max-w-3xl">
         <div className="text-center mb-10 animate-fade-up">
-          <div className="text-xs font-mono uppercase tracking-[0.2em] text-primary mb-4">
-            {t("order.tag")}
-          </div>
+          <div className="text-xs font-mono uppercase tracking-[0.2em] text-primary mb-4">{s.tag}</div>
           <h2 className="text-3xl sm:text-5xl font-bold tracking-tight">
-            {t("order.title.1")} <span className="text-gradient">{t("order.title.2")}</span>
+            {s.t1} <span className="text-gradient">{s.t2}</span>
           </h2>
-          <p className="mt-4 text-muted-foreground">{t("order.desc")}</p>
+          <p className="mt-4 text-muted-foreground">{s.desc}</p>
         </div>
 
-        <form
-          onSubmit={submit}
-          className="bg-gradient-card border border-border rounded-2xl p-6 sm:p-8 animate-fade-up"
-        >
+        <form onSubmit={submit} className="bg-gradient-card border border-border rounded-2xl p-6 sm:p-8 animate-fade-up">
           <div className="grid sm:grid-cols-2 gap-4">
             <div className="sm:col-span-2">
-              <label className="text-xs font-medium text-muted-foreground">{t("order.f.service")}</label>
+              <label className="text-xs font-medium text-muted-foreground">{s.service}</label>
               <Select value={form.service_title} onValueChange={(v) => setForm({ ...form, service_title: v })}>
-                <SelectTrigger className="mt-1.5 bg-background/60">
-                  <SelectValue placeholder={t("order.f.service.ph")} />
-                </SelectTrigger>
-                <SelectContent>
-                  {SERVICES.map((s) => (
-                    <SelectItem key={s} value={s}>{s}</SelectItem>
-                  ))}
-                </SelectContent>
+                <SelectTrigger className="mt-1.5 bg-background/60"><SelectValue placeholder={s.servicePh} /></SelectTrigger>
+                <SelectContent>{SERVICES.map((x) => (<SelectItem key={x} value={x}>{x}</SelectItem>))}</SelectContent>
               </Select>
             </div>
             <div>
-              <label className="text-xs font-medium text-muted-foreground">{t("order.f.name")}</label>
-              <Input value={form.customer_name} onChange={(e) => setForm({ ...form, customer_name: e.target.value })}
-                maxLength={80} className="mt-1.5 bg-background/60" />
+              <label className="text-xs font-medium text-muted-foreground">{s.name}</label>
+              <Input value={form.customer_name} onChange={(e) => setForm({ ...form, customer_name: e.target.value })} maxLength={80} className="mt-1.5 bg-background/60" />
             </div>
             <div>
-              <label className="text-xs font-medium text-muted-foreground">{t("order.f.phone")}</label>
-              <Input value={form.customer_phone} onChange={(e) => setForm({ ...form, customer_phone: e.target.value })}
-                maxLength={40} className="mt-1.5 bg-background/60" />
+              <label className="text-xs font-medium text-muted-foreground">{s.phone}</label>
+              <Input value={form.customer_phone} onChange={(e) => setForm({ ...form, customer_phone: e.target.value })} maxLength={40} className="mt-1.5 bg-background/60" />
             </div>
             <div className="sm:col-span-2">
-              <label className="text-xs font-medium text-muted-foreground">{t("order.f.email")}</label>
-              <Input type="email" value={form.customer_email} onChange={(e) => setForm({ ...form, customer_email: e.target.value })}
-                maxLength={160} className="mt-1.5 bg-background/60" />
+              <label className="text-xs font-medium text-muted-foreground">{s.email}</label>
+              <Input type="email" value={form.customer_email} onChange={(e) => setForm({ ...form, customer_email: e.target.value })} maxLength={160} className="mt-1.5 bg-background/60" />
             </div>
             <div className="sm:col-span-2">
-              <label className="text-xs font-medium text-muted-foreground">{t("order.f.notes")}</label>
-              <Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                rows={5} maxLength={1000} className="mt-1.5 bg-background/60 resize-none" />
+              <label className="text-xs font-medium text-muted-foreground">{s.notes}</label>
+              <Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} rows={5} maxLength={1000} className="mt-1.5 bg-background/60 resize-none" />
             </div>
           </div>
           <div className="mt-6 flex justify-end">
             <Button type="submit" variant="hero" size="lg" disabled={loading}>
-              {loading ? t("order.f.sending") : (<><ClipboardList className="h-4 w-4" /> {t("order.f.submit")}</>)}
+              {loading ? s.sending : (<><ClipboardList className="h-4 w-4" /> {s.submit}</>)}
             </Button>
           </div>
         </form>
