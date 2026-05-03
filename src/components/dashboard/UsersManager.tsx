@@ -3,20 +3,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, ShieldCheck, Shield, Trash2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 
-type Profile = {
-  id: string;
-  email: string | null;
-  full_name: string | null;
-  avatar_url: string | null;
-  created_at: string;
-};
-
-type Row = Profile & { isAdmin: boolean };
+type Role = "admin" | "editor" | "user";
+type Profile = { id: string; email: string | null; full_name: string | null; avatar_url: string | null; created_at: string };
+type Row = Profile & { role: Role };
 
 export default function UsersManager({ currentUserId }: { currentUserId: string }) {
   const [rows, setRows] = useState<Row[]>([]);
@@ -30,43 +25,48 @@ export default function UsersManager({ currentUserId }: { currentUserId: string 
     ]);
     if (pErr) toast.error(pErr.message);
     if (rErr) toast.error(rErr.message);
-    const adminSet = new Set((roles ?? []).filter((r: any) => r.role === "admin").map((r: any) => r.user_id));
-    setRows(((profiles as Profile[]) ?? []).map((p) => ({ ...p, isAdmin: adminSet.has(p.id) })));
+    const roleMap = new Map<string, Role>();
+    (roles ?? []).forEach((r: any) => {
+      const existing = roleMap.get(r.user_id);
+      // priority: admin > editor > user
+      const rank = (x: Role) => (x === "admin" ? 3 : x === "editor" ? 2 : 1);
+      if (!existing || rank(r.role) > rank(existing)) roleMap.set(r.user_id, r.role);
+    });
+    setRows(((profiles as Profile[]) ?? []).map((p) => ({ ...p, role: roleMap.get(p.id) ?? "user" })));
     setLoading(false);
   };
 
   useEffect(() => { load(); }, []);
 
-  const toggleAdmin = async (row: Row) => {
-    if (row.isAdmin) {
-      if (row.id === currentUserId && !confirm("Remove your own admin role?")) return;
-      const { error } = await supabase.from("user_roles").delete().eq("user_id", row.id).eq("role", "admin");
-      if (error) return toast.error(error.message);
-      toast.success("Admin role removed");
-    } else {
-      const { error } = await supabase.from("user_roles").insert({ user_id: row.id, role: "admin" });
-      if (error) return toast.error(error.message);
-      toast.success("Promoted to admin");
-    }
+  const setRole = async (row: Row, next: Role) => {
+    if (row.role === next) return;
+    if (row.id === currentUserId && row.role === "admin" && next !== "admin"
+      && !confirm("Remove your own admin role?")) return;
+    // Remove existing role rows for this user, then insert new
+    const { error: delErr } = await supabase.from("user_roles").delete().eq("user_id", row.id);
+    if (delErr) return toast.error(delErr.message);
+    const { error: insErr } = await supabase.from("user_roles").insert({ user_id: row.id, role: next });
+    if (insErr) return toast.error(insErr.message);
+    toast.success(`Role updated to ${next}`);
     load();
   };
 
   const removeUser = async (row: Row) => {
     if (row.id === currentUserId) return toast.error("You cannot delete your own account here.");
-    if (!confirm(`Delete profile for ${row.email}? This removes their data but not their auth account.`)) return;
+    if (!confirm(`Delete profile for ${row.email}?`)) return;
     const { error } = await supabase.from("profiles").delete().eq("id", row.id);
     if (error) return toast.error(error.message);
     toast.success("User profile deleted");
     load();
   };
 
-  if (loading) {
-    return <div className="grid place-items-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
-  }
+  if (loading) return <div className="grid place-items-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
+  if (rows.length === 0) return <Card className="p-12 text-center text-muted-foreground">No users found. Admin access required.</Card>;
 
-  if (rows.length === 0) {
-    return <Card className="p-12 text-center text-muted-foreground">No users found. Admin access required.</Card>;
-  }
+  const badgeFor = (r: Role) =>
+    r === "admin" ? "bg-primary/20 text-primary border-primary/30"
+    : r === "editor" ? "bg-accent/30 text-foreground border-accent"
+    : "bg-muted text-muted-foreground border-border";
 
   return (
     <div className="space-y-3">
@@ -81,7 +81,7 @@ export default function UsersManager({ currentUserId }: { currentUserId: string 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="font-semibold truncate">{u.full_name ?? "—"}</span>
-              {u.isAdmin && <Badge className="bg-primary/20 text-primary border-primary/30">Admin</Badge>}
+              <Badge className={badgeFor(u.role)}>{u.role}</Badge>
               {u.id === currentUserId && <Badge variant="outline">You</Badge>}
             </div>
             <p className="text-xs text-muted-foreground truncate">{u.email}</p>
@@ -89,10 +89,15 @@ export default function UsersManager({ currentUserId }: { currentUserId: string 
               Joined {formatDistanceToNow(new Date(u.created_at), { addSuffix: true })}
             </p>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => toggleAdmin(u)}>
-              {u.isAdmin ? <><Shield className="h-3.5 w-3.5" /> Revoke</> : <><ShieldCheck className="h-3.5 w-3.5" /> Make admin</>}
-            </Button>
+          <div className="flex gap-2 items-center">
+            <Select value={u.role} onValueChange={(v) => setRole(u, v as Role)}>
+              <SelectTrigger className="w-32 h-9"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem value="editor">Editor</SelectItem>
+                <SelectItem value="user">User</SelectItem>
+              </SelectContent>
+            </Select>
             <Button variant="ghost" size="sm" className="text-destructive" onClick={() => removeUser(u)} disabled={u.id === currentUserId}>
               <Trash2 className="h-4 w-4" />
             </Button>
