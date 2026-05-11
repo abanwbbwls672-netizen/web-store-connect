@@ -237,56 +237,117 @@ export default function Dashboard() {
 
   const initials = user.email?.[0]?.toUpperCase() ?? "U";
 
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Top bar */}
-      <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur">
-        <div className="container flex items-center justify-between h-14">
-          <a href="/" className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-gradient-primary grid place-items-center shadow-glow">
-              <Code2 className="h-4 w-4 text-primary-foreground" />
-            </div>
-            <span className="font-bold">Web Store <span className="text-muted-foreground font-normal text-sm">/ Dashboard</span></span>
-          </a>
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={toggle} title="Language">
-              <Languages className="h-4 w-4" /> {lang === "en" ? "العربية" : "English"}
-            </Button>
-            <Avatar className="h-8 w-8"><AvatarFallback className="bg-primary/20 text-primary text-xs">{initials}</AvatarFallback></Avatar>
-            <span className="text-xs text-muted-foreground hidden sm:inline">{user.email}</span>
-            <Button variant="ghost" size="sm" onClick={signOut}><LogOut className="h-4 w-4" /> {t("db.signout")}</Button>
-          </div>
-        </div>
-        {/* Section tabs */}
-        <div className="container flex gap-1 overflow-x-auto pb-2 -mt-1">
-          {baseSections.filter((s) => !s.adminOnly || isAdmin).map((s) => (
-            <button
-              key={s.id}
-              onClick={() => setSection(s.id)}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm whitespace-nowrap transition-colors ${
-                section === s.id ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-              }`}
-            >
-              <s.icon className="h-4 w-4" /> {t(s.labelKey)}
-            </button>
-          ))}
-        </div>
-      </header>
+  const sidebarSections: DashSection[] = baseSections
+    .filter((s) => !s.adminOnly || isAdmin)
+    .map((s) => ({
+      id: s.id,
+      label: t(s.labelKey),
+      icon: s.icon,
+      group: s.group,
+      badge: s.id === "messages" ? unread : undefined,
+    }));
 
-      <main className="container py-8 space-y-10">
-        {/* OVERVIEW */}
-        <section id="overview" className={section === "overview" ? "" : "hidden"}>
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold">{t("db.overview.title")}</h1>
-            <p className="text-muted-foreground">{t("db.overview.desc")}</p>
-          </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <Stat icon={FolderIcon} label={t("db.stat.projects")} value={projects.length} accent="bg-primary/15 text-primary" />
-            <Stat icon={MessageSquare} label={t("db.stat.messages")} value={messages.length} accent="bg-accent/15 text-accent-foreground" />
-            <Stat icon={TrendingUp} label={t("db.stat.unread")} value={unread} accent="bg-yellow-500/15 text-yellow-500" />
-            <Stat icon={MousePointerClick} label={t("db.stat.clicks")} value={clicks.length} accent="bg-emerald-500/15 text-emerald-500" />
-          </div>
-        </section>
+  const recentMessages = messages.slice(0, 4);
+
+  return (
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-background">
+        <DashSidebar
+          sections={sidebarSections}
+          current={section}
+          onSelect={setSection}
+          onSignOut={signOut}
+          brand="Web Store"
+        />
+
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Top bar */}
+          <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur">
+            <div className="flex items-center justify-between h-14 px-4 gap-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <SidebarTrigger />
+                <h1 className="font-semibold truncate">
+                  {sidebarSections.find((s) => s.id === section)?.label ?? "Dashboard"}
+                </h1>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="sm" onClick={toggle} title="Language">
+                  <Languages className="h-4 w-4" />
+                  <span className="hidden sm:inline ms-1">{lang === "en" ? "العربية" : "English"}</span>
+                </Button>
+                <Avatar className="h-8 w-8"><AvatarFallback className="bg-primary/20 text-primary text-xs">{initials}</AvatarFallback></Avatar>
+                <span className="text-xs text-muted-foreground hidden md:inline">{user.email}</span>
+                <Button variant="ghost" size="sm" onClick={signOut} className="hidden sm:inline-flex">
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </header>
+
+          <main className="flex-1 px-4 sm:px-6 py-8 space-y-10 max-w-[1400px] w-full mx-auto">
+            {/* OVERVIEW */}
+            <section id="overview" className={section === "overview" ? "" : "hidden"}>
+              <div className="mb-6">
+                <h2 className="text-3xl font-bold">{t("db.overview.title")}</h2>
+                <p className="text-muted-foreground">{t("db.overview.desc")}</p>
+              </div>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <button onClick={() => setSection("projects")} className="text-start"><Stat icon={FolderIcon} label={t("db.stat.projects")} value={projects.length} accent="bg-primary/15 text-primary" /></button>
+                <button onClick={() => setSection("messages")} className="text-start"><Stat icon={MessageSquare} label={t("db.stat.messages")} value={messages.length} accent="bg-accent/15 text-accent-foreground" /></button>
+                <button onClick={() => setSection("messages")} className="text-start"><Stat icon={TrendingUp} label={t("db.stat.unread")} value={unread} accent="bg-yellow-500/15 text-yellow-500" /></button>
+                <button onClick={() => setSection("analytics")} className="text-start"><Stat icon={MousePointerClick} label={t("db.stat.clicks")} value={clicks.length} accent="bg-emerald-500/15 text-emerald-500" /></button>
+              </div>
+
+              {/* Quick actions */}
+              <Card className="p-5 mt-6 glass">
+                <h3 className="font-semibold mb-4">Quick actions</h3>
+                <div className="flex flex-wrap gap-2">
+                  <Button variant="hero" size="sm" onClick={() => { setSection("projects"); setTimeout(openNew, 50); }}>
+                    <Plus className="h-4 w-4" /> {t("db.projects.new")}
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => setSection("content")}>
+                    <FileText className="h-4 w-4" /> {t("db.section.content")}
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => setSection("media")}>
+                    <ImageIcon className="h-4 w-4" /> {t("db.section.media")}
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => setSection("orders")}>
+                    <ShoppingCart className="h-4 w-4" /> {t("db.section.orders")}
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => setSection("settings")}>
+                    <Settings className="h-4 w-4" /> {t("db.section.settings")}
+                  </Button>
+                </div>
+              </Card>
+
+              {/* Recent messages preview */}
+              <Card className="p-5 mt-6 glass">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-semibold">Recent messages</h3>
+                  <Button variant="ghost" size="sm" onClick={() => setSection("messages")}>
+                    View all <ArrowRight className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+                {recentMessages.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-6">{t("db.msg.empty")}</p>
+                ) : (
+                  <div className="divide-y divide-border/60">
+                    {recentMessages.map((m) => (
+                      <div key={m.id} className="py-2.5 flex items-center gap-3">
+                        <div className={`h-2 w-2 rounded-full ${!m.is_read ? "bg-primary" : "bg-muted"}`} />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium truncate">{m.sender_name}</p>
+                          <p className="text-xs text-muted-foreground truncate">{m.content}</p>
+                        </div>
+                        <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+                          {formatDistanceToNow(new Date(m.created_at), { addSuffix: true })}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </Card>
+            </section>
 
         {/* PROJECTS */}
         <section id="projects" className={section === "projects" ? "" : "hidden"}>
