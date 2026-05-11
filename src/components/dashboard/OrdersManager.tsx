@@ -179,6 +179,8 @@ export default function OrdersManager({ userId }: { userId: string }) {
           </Card>
         );
       })}
+      </div>
+      )}
     </div>
   );
 }
