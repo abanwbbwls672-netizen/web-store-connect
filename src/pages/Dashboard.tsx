@@ -361,21 +361,53 @@ export default function Dashboard() {
               <DialogContent className="max-w-lg">
                 <DialogHeader><DialogTitle>{editing ? t("db.projects.edit") : t("db.projects.new")}</DialogTitle></DialogHeader>
                 <div className="space-y-3">
-                  <div><Label>{t("db.f.title")}</Label><Input value={pForm.title} onChange={(e) => setPForm({ ...pForm, title: e.target.value })} /></div>
-                  <div><Label>{t("db.f.description")}</Label><Textarea value={pForm.description} onChange={(e) => setPForm({ ...pForm, description: e.target.value })} rows={3} /></div>
-                  <div><Label>{t("db.f.image")}</Label><Input value={pForm.image_url} onChange={(e) => setPForm({ ...pForm, image_url: e.target.value })} /></div>
-                  <div><Label>{t("db.f.link")}</Label><Input value={pForm.link_url} onChange={(e) => setPForm({ ...pForm, link_url: e.target.value })} /></div>
-                  <div><Label>{t("db.f.tech")}</Label><Input value={pForm.tech_stack} onChange={(e) => setPForm({ ...pForm, tech_stack: e.target.value })} placeholder="React, Node, Postgres" /></div>
+                  <div>
+                    <Label>{t("db.f.title")} <span className="text-destructive">*</span></Label>
+                    <Input value={pForm.title} onChange={(e) => setPForm({ ...pForm, title: e.target.value })} placeholder="My awesome project" />
+                  </div>
+                  <div>
+                    <Label>{t("db.f.description")}</Label>
+                    <Textarea value={pForm.description} onChange={(e) => setPForm({ ...pForm, description: e.target.value })} rows={3} placeholder="What does this project do?" />
+                  </div>
+                  <div>
+                    <Label>{t("db.f.image")}</Label>
+                    <Input value={pForm.image_url} onChange={(e) => setPForm({ ...pForm, image_url: e.target.value })} placeholder="https://… (paste from Media Library)" />
+                    <p className="text-[11px] text-muted-foreground mt-1">Tip: upload an image in Media Library and copy its URL here.</p>
+                  </div>
+                  <div>
+                    <Label>{t("db.f.link")}</Label>
+                    <Input value={pForm.link_url} onChange={(e) => setPForm({ ...pForm, link_url: e.target.value })} placeholder="https://example.com" />
+                  </div>
+                  <div>
+                    <Label>{t("db.f.tech")}</Label>
+                    <Input value={pForm.tech_stack} onChange={(e) => setPForm({ ...pForm, tech_stack: e.target.value })} placeholder="React, Node, Postgres" />
+                    <p className="text-[11px] text-muted-foreground mt-1">Separate each technology with a comma.</p>
+                  </div>
                   <Button variant="hero" className="w-full" onClick={saveProject}>{editing ? t("db.btn.update") : t("db.btn.create")}</Button>
                 </div>
               </DialogContent>
             </Dialog>
           </div>
+
+          {projects.length > 0 && (
+            <div className="relative mb-4 max-w-md">
+              <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                value={projectQuery}
+                onChange={(e) => setProjectQuery(e.target.value)}
+                placeholder="Search projects…"
+                className="ps-9"
+              />
+            </div>
+          )}
+
           {projects.length === 0 ? (
             <Card className="p-12 text-center text-muted-foreground">{t("db.projects.empty")}</Card>
+          ) : filteredProjects.length === 0 ? (
+            <Card className="p-12 text-center text-muted-foreground">No projects match your search.</Card>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {projects.map((p) => (
+              {filteredProjects.map((p) => (
                 <Card key={p.id} className="p-5 glass flex flex-col">
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="font-semibold text-lg">{p.title}</h3>
