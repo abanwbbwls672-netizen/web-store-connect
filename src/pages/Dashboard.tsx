@@ -1,15 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, FolderKanban, MessageSquare, MessageCircle, BarChart3, Settings,
   LogOut, Code2, Loader2, Plus, Edit, Trash2, ExternalLink, Mail, Phone, CheckCircle2,
   FolderKanban as FolderIcon, MousePointerClick, TrendingUp, Languages, Eye, EyeOff, Image as ImageIcon, FileText,
-  ShoppingCart, Users,
+  ShoppingCart, Users, Search, ArrowRight,
 } from "lucide-react";
 import MediaLibrary from "@/components/dashboard/MediaLibrary";
 import SiteContentEditor from "@/components/dashboard/SiteContentEditor";
 import OrdersManager from "@/components/dashboard/OrdersManager";
 import UsersManager from "@/components/dashboard/UsersManager";
+import DashSidebar, { type DashSection } from "@/components/dashboard/DashSidebar";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme, themes, hslToHex } from "@/hooks/useTheme";
@@ -23,6 +24,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
