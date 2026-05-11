@@ -66,6 +66,8 @@ export default function Dashboard() {
   const { t, lang, toggle } = useI18n();
   const navigate = useNavigate();
   const [section, setSection] = useState<string>("overview");
+  const [projectQuery, setProjectQuery] = useState("");
+  const [messageQuery, setMessageQuery] = useState("");
 
   // Password change
   const [newPassword, setNewPassword] = useState("");
