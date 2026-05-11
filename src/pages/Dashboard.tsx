@@ -34,16 +34,16 @@ type Msg = { id: string; sender_name: string; sender_email: string | null; sende
 type Click = { id: string; created_at: string; country: string | null; source: string | null };
 
 const baseSections = [
-  { id: "overview", labelKey: "db.section.overview", icon: LayoutDashboard, adminOnly: false },
-  { id: "content", labelKey: "db.section.content", icon: FileText, adminOnly: false },
-  { id: "projects", labelKey: "db.section.projects", icon: FolderKanban, adminOnly: false },
-  { id: "orders", labelKey: "db.section.orders", icon: ShoppingCart, adminOnly: false },
-  { id: "media", labelKey: "db.section.media", icon: ImageIcon, adminOnly: false },
-  { id: "messages", labelKey: "db.section.messages", icon: MessageSquare, adminOnly: false },
-  { id: "users", labelKey: "db.section.users", icon: Users, adminOnly: true },
-  { id: "whatsapp", labelKey: "db.section.whatsapp", icon: MessageCircle, adminOnly: false },
-  { id: "analytics", labelKey: "db.section.analytics", icon: BarChart3, adminOnly: false },
-  { id: "settings", labelKey: "db.section.settings", icon: Settings, adminOnly: false },
+  { id: "overview", labelKey: "db.section.overview", icon: LayoutDashboard, adminOnly: false, group: "main" as const },
+  { id: "content", labelKey: "db.section.content", icon: FileText, adminOnly: false, group: "manage" as const },
+  { id: "projects", labelKey: "db.section.projects", icon: FolderKanban, adminOnly: false, group: "manage" as const },
+  { id: "orders", labelKey: "db.section.orders", icon: ShoppingCart, adminOnly: false, group: "manage" as const },
+  { id: "media", labelKey: "db.section.media", icon: ImageIcon, adminOnly: false, group: "manage" as const },
+  { id: "messages", labelKey: "db.section.messages", icon: MessageSquare, adminOnly: false, group: "manage" as const },
+  { id: "users", labelKey: "db.section.users", icon: Users, adminOnly: true, group: "manage" as const },
+  { id: "whatsapp", labelKey: "db.section.whatsapp", icon: MessageCircle, adminOnly: false, group: "system" as const },
+  { id: "analytics", labelKey: "db.section.analytics", icon: BarChart3, adminOnly: false, group: "system" as const },
+  { id: "settings", labelKey: "db.section.settings", icon: Settings, adminOnly: false, group: "system" as const },
 ] as const;
 
 const Stat = ({ icon: Icon, label, value, accent }: any) => (
