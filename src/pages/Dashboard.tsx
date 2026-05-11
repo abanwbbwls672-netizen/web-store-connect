@@ -210,6 +210,27 @@ export default function Dashboard() {
     clicks.reduce<Record<string, number>>((acc, c) => { const k = c.country || "Unknown"; acc[k] = (acc[k] || 0) + 1; return acc; }, {})
   ).sort((a, b) => b[1] - a[1]).slice(0, 8);
 
+  const filteredProjects = useMemo(() => {
+    const q = projectQuery.trim().toLowerCase();
+    if (!q) return projects;
+    return projects.filter((p) =>
+      p.title.toLowerCase().includes(q) ||
+      (p.description ?? "").toLowerCase().includes(q) ||
+      (p.tech_stack ?? []).join(" ").toLowerCase().includes(q)
+    );
+  }, [projects, projectQuery]);
+
+  const filteredMessages = useMemo(() => {
+    const q = messageQuery.trim().toLowerCase();
+    if (!q) return messages;
+    return messages.filter((m) =>
+      m.sender_name.toLowerCase().includes(q) ||
+      (m.sender_email ?? "").toLowerCase().includes(q) ||
+      (m.sender_phone ?? "").toLowerCase().includes(q) ||
+      m.content.toLowerCase().includes(q)
+    );
+  }, [messages, messageQuery]);
+
   if (loading || !user) {
     return <div className="min-h-screen grid place-items-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
