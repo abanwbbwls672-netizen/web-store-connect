@@ -30,6 +30,8 @@ const STATUS_META: Record<Order["status"], { label: string; cls: string }> = {
 export default function OrdersManager({ userId }: { userId: string }) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | Order["status"]>("all");
 
   const load = async () => {
     const { data, error } = await supabase
