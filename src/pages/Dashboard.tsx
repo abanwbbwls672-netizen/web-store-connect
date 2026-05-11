@@ -1,15 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, FolderKanban, MessageSquare, MessageCircle, BarChart3, Settings,
   LogOut, Code2, Loader2, Plus, Edit, Trash2, ExternalLink, Mail, Phone, CheckCircle2,
   FolderKanban as FolderIcon, MousePointerClick, TrendingUp, Languages, Eye, EyeOff, Image as ImageIcon, FileText,
-  ShoppingCart, Users,
+  ShoppingCart, Users, Search, ArrowRight,
 } from "lucide-react";
 import MediaLibrary from "@/components/dashboard/MediaLibrary";
 import SiteContentEditor from "@/components/dashboard/SiteContentEditor";
 import OrdersManager from "@/components/dashboard/OrdersManager";
 import UsersManager from "@/components/dashboard/UsersManager";
+import DashSidebar, { type DashSection } from "@/components/dashboard/DashSidebar";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme, themes, hslToHex } from "@/hooks/useTheme";
@@ -23,6 +24,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
@@ -32,16 +34,16 @@ type Msg = { id: string; sender_name: string; sender_email: string | null; sende
 type Click = { id: string; created_at: string; country: string | null; source: string | null };
 
 const baseSections = [
-  { id: "overview", labelKey: "db.section.overview", icon: LayoutDashboard, adminOnly: false },
-  { id: "content", labelKey: "db.section.content", icon: FileText, adminOnly: false },
-  { id: "projects", labelKey: "db.section.projects", icon: FolderKanban, adminOnly: false },
-  { id: "orders", labelKey: "db.section.orders", icon: ShoppingCart, adminOnly: false },
-  { id: "media", labelKey: "db.section.media", icon: ImageIcon, adminOnly: false },
-  { id: "messages", labelKey: "db.section.messages", icon: MessageSquare, adminOnly: false },
-  { id: "users", labelKey: "db.section.users", icon: Users, adminOnly: true },
-  { id: "whatsapp", labelKey: "db.section.whatsapp", icon: MessageCircle, adminOnly: false },
-  { id: "analytics", labelKey: "db.section.analytics", icon: BarChart3, adminOnly: false },
-  { id: "settings", labelKey: "db.section.settings", icon: Settings, adminOnly: false },
+  { id: "overview", labelKey: "db.section.overview", icon: LayoutDashboard, adminOnly: false, group: "main" as const },
+  { id: "content", labelKey: "db.section.content", icon: FileText, adminOnly: false, group: "manage" as const },
+  { id: "projects", labelKey: "db.section.projects", icon: FolderKanban, adminOnly: false, group: "manage" as const },
+  { id: "orders", labelKey: "db.section.orders", icon: ShoppingCart, adminOnly: false, group: "manage" as const },
+  { id: "media", labelKey: "db.section.media", icon: ImageIcon, adminOnly: false, group: "manage" as const },
+  { id: "messages", labelKey: "db.section.messages", icon: MessageSquare, adminOnly: false, group: "manage" as const },
+  { id: "users", labelKey: "db.section.users", icon: Users, adminOnly: true, group: "manage" as const },
+  { id: "whatsapp", labelKey: "db.section.whatsapp", icon: MessageCircle, adminOnly: false, group: "system" as const },
+  { id: "analytics", labelKey: "db.section.analytics", icon: BarChart3, adminOnly: false, group: "system" as const },
+  { id: "settings", labelKey: "db.section.settings", icon: Settings, adminOnly: false, group: "system" as const },
 ] as const;
 
 const Stat = ({ icon: Icon, label, value, accent }: any) => (
@@ -64,6 +66,8 @@ export default function Dashboard() {
   const { t, lang, toggle } = useI18n();
   const navigate = useNavigate();
   const [section, setSection] = useState<string>("overview");
+  const [projectQuery, setProjectQuery] = useState("");
+  const [messageQuery, setMessageQuery] = useState("");
 
   // Password change
   const [newPassword, setNewPassword] = useState("");
@@ -206,62 +210,144 @@ export default function Dashboard() {
     clicks.reduce<Record<string, number>>((acc, c) => { const k = c.country || "Unknown"; acc[k] = (acc[k] || 0) + 1; return acc; }, {})
   ).sort((a, b) => b[1] - a[1]).slice(0, 8);
 
+  const filteredProjects = useMemo(() => {
+    const q = projectQuery.trim().toLowerCase();
+    if (!q) return projects;
+    return projects.filter((p) =>
+      p.title.toLowerCase().includes(q) ||
+      (p.description ?? "").toLowerCase().includes(q) ||
+      (p.tech_stack ?? []).join(" ").toLowerCase().includes(q)
+    );
+  }, [projects, projectQuery]);
+
+  const filteredMessages = useMemo(() => {
+    const q = messageQuery.trim().toLowerCase();
+    if (!q) return messages;
+    return messages.filter((m) =>
+      m.sender_name.toLowerCase().includes(q) ||
+      (m.sender_email ?? "").toLowerCase().includes(q) ||
+      (m.sender_phone ?? "").toLowerCase().includes(q) ||
+      m.content.toLowerCase().includes(q)
+    );
+  }, [messages, messageQuery]);
+
   if (loading || !user) {
     return <div className="min-h-screen grid place-items-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
 
   const initials = user.email?.[0]?.toUpperCase() ?? "U";
 
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Top bar */}
-      <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur">
-        <div className="container flex items-center justify-between h-14">
-          <a href="/" className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-gradient-primary grid place-items-center shadow-glow">
-              <Code2 className="h-4 w-4 text-primary-foreground" />
-            </div>
-            <span className="font-bold">Web Store <span className="text-muted-foreground font-normal text-sm">/ Dashboard</span></span>
-          </a>
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={toggle} title="Language">
-              <Languages className="h-4 w-4" /> {lang === "en" ? "العربية" : "English"}
-            </Button>
-            <Avatar className="h-8 w-8"><AvatarFallback className="bg-primary/20 text-primary text-xs">{initials}</AvatarFallback></Avatar>
-            <span className="text-xs text-muted-foreground hidden sm:inline">{user.email}</span>
-            <Button variant="ghost" size="sm" onClick={signOut}><LogOut className="h-4 w-4" /> {t("db.signout")}</Button>
-          </div>
-        </div>
-        {/* Section tabs */}
-        <div className="container flex gap-1 overflow-x-auto pb-2 -mt-1">
-          {baseSections.filter((s) => !s.adminOnly || isAdmin).map((s) => (
-            <button
-              key={s.id}
-              onClick={() => setSection(s.id)}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm whitespace-nowrap transition-colors ${
-                section === s.id ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-              }`}
-            >
-              <s.icon className="h-4 w-4" /> {t(s.labelKey)}
-            </button>
-          ))}
-        </div>
-      </header>
+  const sidebarSections: DashSection[] = baseSections
+    .filter((s) => !s.adminOnly || isAdmin)
+    .map((s) => ({
+      id: s.id,
+      label: t(s.labelKey),
+      icon: s.icon,
+      group: s.group,
+      badge: s.id === "messages" ? unread : undefined,
+    }));
 
-      <main className="container py-8 space-y-10">
-        {/* OVERVIEW */}
-        <section id="overview" className={section === "overview" ? "" : "hidden"}>
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold">{t("db.overview.title")}</h1>
-            <p className="text-muted-foreground">{t("db.overview.desc")}</p>
-          </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <Stat icon={FolderIcon} label={t("db.stat.projects")} value={projects.length} accent="bg-primary/15 text-primary" />
-            <Stat icon={MessageSquare} label={t("db.stat.messages")} value={messages.length} accent="bg-accent/15 text-accent-foreground" />
-            <Stat icon={TrendingUp} label={t("db.stat.unread")} value={unread} accent="bg-yellow-500/15 text-yellow-500" />
-            <Stat icon={MousePointerClick} label={t("db.stat.clicks")} value={clicks.length} accent="bg-emerald-500/15 text-emerald-500" />
-          </div>
-        </section>
+  const recentMessages = messages.slice(0, 4);
+
+  return (
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-background">
+        <DashSidebar
+          sections={sidebarSections}
+          current={section}
+          onSelect={setSection}
+          onSignOut={signOut}
+          brand="Web Store"
+        />
+
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Top bar */}
+          <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur">
+            <div className="flex items-center justify-between h-14 px-4 gap-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <SidebarTrigger />
+                <h1 className="font-semibold truncate">
+                  {sidebarSections.find((s) => s.id === section)?.label ?? "Dashboard"}
+                </h1>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="sm" onClick={toggle} title="Language">
+                  <Languages className="h-4 w-4" />
+                  <span className="hidden sm:inline ms-1">{lang === "en" ? "العربية" : "English"}</span>
+                </Button>
+                <Avatar className="h-8 w-8"><AvatarFallback className="bg-primary/20 text-primary text-xs">{initials}</AvatarFallback></Avatar>
+                <span className="text-xs text-muted-foreground hidden md:inline">{user.email}</span>
+                <Button variant="ghost" size="sm" onClick={signOut} className="hidden sm:inline-flex">
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </header>
+
+          <main className="flex-1 px-4 sm:px-6 py-8 space-y-10 max-w-[1400px] w-full mx-auto">
+            {/* OVERVIEW */}
+            <section id="overview" className={section === "overview" ? "" : "hidden"}>
+              <div className="mb-6">
+                <h2 className="text-3xl font-bold">{t("db.overview.title")}</h2>
+                <p className="text-muted-foreground">{t("db.overview.desc")}</p>
+              </div>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <button onClick={() => setSection("projects")} className="text-start"><Stat icon={FolderIcon} label={t("db.stat.projects")} value={projects.length} accent="bg-primary/15 text-primary" /></button>
+                <button onClick={() => setSection("messages")} className="text-start"><Stat icon={MessageSquare} label={t("db.stat.messages")} value={messages.length} accent="bg-accent/15 text-accent-foreground" /></button>
+                <button onClick={() => setSection("messages")} className="text-start"><Stat icon={TrendingUp} label={t("db.stat.unread")} value={unread} accent="bg-yellow-500/15 text-yellow-500" /></button>
+                <button onClick={() => setSection("analytics")} className="text-start"><Stat icon={MousePointerClick} label={t("db.stat.clicks")} value={clicks.length} accent="bg-emerald-500/15 text-emerald-500" /></button>
+              </div>
+
+              {/* Quick actions */}
+              <Card className="p-5 mt-6 glass">
+                <h3 className="font-semibold mb-4">Quick actions</h3>
+                <div className="flex flex-wrap gap-2">
+                  <Button variant="hero" size="sm" onClick={() => { setSection("projects"); setTimeout(openNew, 50); }}>
+                    <Plus className="h-4 w-4" /> {t("db.projects.new")}
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => setSection("content")}>
+                    <FileText className="h-4 w-4" /> {t("db.section.content")}
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => setSection("media")}>
+                    <ImageIcon className="h-4 w-4" /> {t("db.section.media")}
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => setSection("orders")}>
+                    <ShoppingCart className="h-4 w-4" /> {t("db.section.orders")}
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => setSection("settings")}>
+                    <Settings className="h-4 w-4" /> {t("db.section.settings")}
+                  </Button>
+                </div>
+              </Card>
+
+              {/* Recent messages preview */}
+              <Card className="p-5 mt-6 glass">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-semibold">Recent messages</h3>
+                  <Button variant="ghost" size="sm" onClick={() => setSection("messages")}>
+                    View all <ArrowRight className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+                {recentMessages.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-6">{t("db.msg.empty")}</p>
+                ) : (
+                  <div className="divide-y divide-border/60">
+                    {recentMessages.map((m) => (
+                      <div key={m.id} className="py-2.5 flex items-center gap-3">
+                        <div className={`h-2 w-2 rounded-full ${!m.is_read ? "bg-primary" : "bg-muted"}`} />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium truncate">{m.sender_name}</p>
+                          <p className="text-xs text-muted-foreground truncate">{m.content}</p>
+                        </div>
+                        <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+                          {formatDistanceToNow(new Date(m.created_at), { addSuffix: true })}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </Card>
+            </section>
 
         {/* PROJECTS */}
         <section id="projects" className={section === "projects" ? "" : "hidden"}>
@@ -275,21 +361,53 @@ export default function Dashboard() {
               <DialogContent className="max-w-lg">
                 <DialogHeader><DialogTitle>{editing ? t("db.projects.edit") : t("db.projects.new")}</DialogTitle></DialogHeader>
                 <div className="space-y-3">
-                  <div><Label>{t("db.f.title")}</Label><Input value={pForm.title} onChange={(e) => setPForm({ ...pForm, title: e.target.value })} /></div>
-                  <div><Label>{t("db.f.description")}</Label><Textarea value={pForm.description} onChange={(e) => setPForm({ ...pForm, description: e.target.value })} rows={3} /></div>
-                  <div><Label>{t("db.f.image")}</Label><Input value={pForm.image_url} onChange={(e) => setPForm({ ...pForm, image_url: e.target.value })} /></div>
-                  <div><Label>{t("db.f.link")}</Label><Input value={pForm.link_url} onChange={(e) => setPForm({ ...pForm, link_url: e.target.value })} /></div>
-                  <div><Label>{t("db.f.tech")}</Label><Input value={pForm.tech_stack} onChange={(e) => setPForm({ ...pForm, tech_stack: e.target.value })} placeholder="React, Node, Postgres" /></div>
+                  <div>
+                    <Label>{t("db.f.title")} <span className="text-destructive">*</span></Label>
+                    <Input value={pForm.title} onChange={(e) => setPForm({ ...pForm, title: e.target.value })} placeholder="My awesome project" />
+                  </div>
+                  <div>
+                    <Label>{t("db.f.description")}</Label>
+                    <Textarea value={pForm.description} onChange={(e) => setPForm({ ...pForm, description: e.target.value })} rows={3} placeholder="What does this project do?" />
+                  </div>
+                  <div>
+                    <Label>{t("db.f.image")}</Label>
+                    <Input value={pForm.image_url} onChange={(e) => setPForm({ ...pForm, image_url: e.target.value })} placeholder="https://… (paste from Media Library)" />
+                    <p className="text-[11px] text-muted-foreground mt-1">Tip: upload an image in Media Library and copy its URL here.</p>
+                  </div>
+                  <div>
+                    <Label>{t("db.f.link")}</Label>
+                    <Input value={pForm.link_url} onChange={(e) => setPForm({ ...pForm, link_url: e.target.value })} placeholder="https://example.com" />
+                  </div>
+                  <div>
+                    <Label>{t("db.f.tech")}</Label>
+                    <Input value={pForm.tech_stack} onChange={(e) => setPForm({ ...pForm, tech_stack: e.target.value })} placeholder="React, Node, Postgres" />
+                    <p className="text-[11px] text-muted-foreground mt-1">Separate each technology with a comma.</p>
+                  </div>
                   <Button variant="hero" className="w-full" onClick={saveProject}>{editing ? t("db.btn.update") : t("db.btn.create")}</Button>
                 </div>
               </DialogContent>
             </Dialog>
           </div>
+
+          {projects.length > 0 && (
+            <div className="relative mb-4 max-w-md">
+              <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                value={projectQuery}
+                onChange={(e) => setProjectQuery(e.target.value)}
+                placeholder="Search projects…"
+                className="ps-9"
+              />
+            </div>
+          )}
+
           {projects.length === 0 ? (
             <Card className="p-12 text-center text-muted-foreground">{t("db.projects.empty")}</Card>
+          ) : filteredProjects.length === 0 ? (
+            <Card className="p-12 text-center text-muted-foreground">No projects match your search.</Card>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {projects.map((p) => (
+              {filteredProjects.map((p) => (
                 <Card key={p.id} className="p-5 glass flex flex-col">
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="font-semibold text-lg">{p.title}</h3>
@@ -333,11 +451,24 @@ export default function Dashboard() {
             <h2 className="text-3xl font-bold">{t("db.msg.title")}</h2>
             <p className="text-muted-foreground">{t("db.msg.desc")}</p>
           </div>
+          {messages.length > 0 && (
+            <div className="relative mb-4 max-w-md">
+              <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                value={messageQuery}
+                onChange={(e) => setMessageQuery(e.target.value)}
+                placeholder="Search messages…"
+                className="ps-9"
+              />
+            </div>
+          )}
           {messages.length === 0 ? (
             <Card className="p-12 text-center text-muted-foreground">{t("db.msg.empty")}</Card>
+          ) : filteredMessages.length === 0 ? (
+            <Card className="p-12 text-center text-muted-foreground">No messages match your search.</Card>
           ) : (
             <div className="space-y-3">
-              {messages.map((m) => (
+              {filteredMessages.map((m) => (
                 <Card key={m.id} className={`p-5 ${!m.is_read ? "border-primary/40" : ""}`}>
                   <div className="flex items-start justify-between gap-4 flex-wrap">
                     <div className="flex-1 min-w-0">
@@ -587,6 +718,8 @@ export default function Dashboard() {
           </div>
         </section>
       </main>
-    </div>
+        </div>
+      </div>
+    </SidebarProvider>
   );
 }

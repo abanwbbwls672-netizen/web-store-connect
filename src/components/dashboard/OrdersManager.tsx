@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Trash2, Mail, Phone, Loader2 } from "lucide-react";
+import { Trash2, Mail, Phone, Loader2, Search } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 
@@ -29,6 +30,8 @@ const STATUS_META: Record<Order["status"], { label: string; cls: string }> = {
 export default function OrdersManager({ userId }: { userId: string }) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | Order["status"]>("all");
 
   const load = async () => {
     const { data, error } = await supabase
@@ -69,6 +72,21 @@ export default function OrdersManager({ userId }: { userId: string }) {
     toast.success("Order deleted");
   };
 
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return orders.filter((o) => {
+      if (statusFilter !== "all" && o.status !== statusFilter) return false;
+      if (!q) return true;
+      return (
+        o.customer_name.toLowerCase().includes(q) ||
+        o.service_title.toLowerCase().includes(q) ||
+        (o.customer_email ?? "").toLowerCase().includes(q) ||
+        (o.customer_phone ?? "").toLowerCase().includes(q) ||
+        (o.notes ?? "").toLowerCase().includes(q)
+      );
+    });
+  }, [orders, query, statusFilter]);
+
   if (loading) {
     return (
       <div className="grid place-items-center py-12">
@@ -77,13 +95,42 @@ export default function OrdersManager({ userId }: { userId: string }) {
     );
   }
 
-  if (orders.length === 0) {
-    return <Card className="p-12 text-center text-muted-foreground">No orders yet.</Card>;
-  }
+  const counts = orders.reduce<Record<string, number>>((acc, o) => {
+    acc[o.status] = (acc[o.status] || 0) + 1;
+    return acc;
+  }, {});
 
   return (
-    <div className="space-y-3">
-      {orders.map((o) => {
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row gap-2">
+        <div className="relative flex-1">
+          <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search by name, service, email…"
+            className="ps-9"
+          />
+        </div>
+        <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
+          <SelectTrigger className="w-full sm:w-[180px]"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All ({orders.length})</SelectItem>
+            <SelectItem value="pending">Pending ({counts.pending ?? 0})</SelectItem>
+            <SelectItem value="in_progress">In Progress ({counts.in_progress ?? 0})</SelectItem>
+            <SelectItem value="completed">Completed ({counts.completed ?? 0})</SelectItem>
+            <SelectItem value="cancelled">Cancelled ({counts.cancelled ?? 0})</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {filtered.length === 0 ? (
+        <Card className="p-12 text-center text-muted-foreground">
+          {orders.length === 0 ? "No orders yet." : "No orders match your filters."}
+        </Card>
+      ) : (
+      <div className="space-y-3">
+        {filtered.map((o) => {
         const meta = STATUS_META[o.status];
         return (
           <Card key={o.id} className="p-5">
@@ -132,6 +179,8 @@ export default function OrdersManager({ userId }: { userId: string }) {
           </Card>
         );
       })}
+      </div>
+      )}
     </div>
   );
 }
