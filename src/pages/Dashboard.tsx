@@ -451,11 +451,24 @@ export default function Dashboard() {
             <h2 className="text-3xl font-bold">{t("db.msg.title")}</h2>
             <p className="text-muted-foreground">{t("db.msg.desc")}</p>
           </div>
+          {messages.length > 0 && (
+            <div className="relative mb-4 max-w-md">
+              <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                value={messageQuery}
+                onChange={(e) => setMessageQuery(e.target.value)}
+                placeholder="Search messages…"
+                className="ps-9"
+              />
+            </div>
+          )}
           {messages.length === 0 ? (
             <Card className="p-12 text-center text-muted-foreground">{t("db.msg.empty")}</Card>
+          ) : filteredMessages.length === 0 ? (
+            <Card className="p-12 text-center text-muted-foreground">No messages match your search.</Card>
           ) : (
             <div className="space-y-3">
-              {messages.map((m) => (
+              {filteredMessages.map((m) => (
                 <Card key={m.id} className={`p-5 ${!m.is_read ? "border-primary/40" : ""}`}>
                   <div className="flex items-start justify-between gap-4 flex-wrap">
                     <div className="flex-1 min-w-0">
