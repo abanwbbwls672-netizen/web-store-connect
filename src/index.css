@@ -37,16 +37,16 @@
 
     --radius: 0.85rem;
 
-    /* Brand gradients & effects */
+    /* Brand gradients & effects — softened for a cleaner SaaS feel */
     --gradient-primary: linear-gradient(135deg, hsl(158 84% 52%), hsl(187 92% 55%));
-    --gradient-hero: radial-gradient(1200px 600px at 20% 0%, hsl(158 84% 52% / 0.18), transparent 60%),
-                     radial-gradient(900px 500px at 90% 30%, hsl(187 92% 55% / 0.14), transparent 60%),
+    --gradient-hero: radial-gradient(900px 480px at 18% 0%, hsl(158 84% 52% / 0.10), transparent 60%),
+                     radial-gradient(700px 420px at 90% 25%, hsl(187 92% 55% / 0.08), transparent 60%),
                      linear-gradient(180deg, hsl(222 47% 6%), hsl(222 47% 4%));
-    --gradient-card: linear-gradient(160deg, hsl(222 40% 11% / 0.9), hsl(222 40% 8% / 0.6));
+    --gradient-card: linear-gradient(160deg, hsl(222 40% 11% / 0.85), hsl(222 40% 8% / 0.55));
 
-    --shadow-glow: 0 0 60px -10px hsl(158 84% 52% / 0.45);
-    --shadow-elegant: 0 20px 60px -20px hsl(158 84% 30% / 0.35);
-    --shadow-card: 0 10px 40px -15px hsl(0 0% 0% / 0.6);
+    --shadow-glow: 0 0 40px -14px hsl(158 84% 52% / 0.32);
+    --shadow-elegant: 0 16px 48px -22px hsl(158 84% 30% / 0.3);
+    --shadow-card: 0 8px 30px -14px hsl(0 0% 0% / 0.5);
 
     --transition-smooth: cubic-bezier(0.22, 1, 0.36, 1);
 
@@ -94,7 +94,12 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "cv11", "ss01";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
+  ::selection { background: hsl(var(--primary) / 0.25); color: hsl(var(--foreground)); }
+  h1, h2, h3, h4 { letter-spacing: -0.02em; }
 }
 
 @layer utilities {
@@ -111,18 +116,28 @@
   .shadow-elegant { box-shadow: var(--shadow-elegant); }
   .shadow-card { box-shadow: var(--shadow-card); }
   .glass {
-    background: hsl(var(--card) / 0.6);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    border: 1px solid hsl(var(--border) / 0.8);
+    background: hsl(var(--card) / 0.55);
+    backdrop-filter: blur(10px) saturate(140%);
+    -webkit-backdrop-filter: blur(10px) saturate(140%);
+    border: 1px solid hsl(var(--border) / 0.7);
   }
   .grid-pattern {
     background-image:
-      linear-gradient(hsl(var(--border) / 0.4) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(var(--border) / 0.4) 1px, transparent 1px);
-    background-size: 48px 48px;
-    mask-image: radial-gradient(ellipse 60% 50% at 50% 0%, #000 40%, transparent 100%);
+      linear-gradient(hsl(var(--border) / 0.28) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--border) / 0.28) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse 60% 50% at 50% 0%, #000 35%, transparent 100%);
   }
+  .hover-lift { @apply transition-all duration-300; }
+  .hover-lift:hover { transform: translateY(-3px); box-shadow: var(--shadow-elegant); }
+  .marquee { display: flex; gap: 3rem; animation: marquee 30s linear infinite; }
+  @media (prefers-reduced-motion: reduce) {
+    .marquee { animation: none; }
+  }
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }
 
 @keyframes float {
