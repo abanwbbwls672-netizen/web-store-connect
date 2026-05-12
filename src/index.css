@@ -116,18 +116,28 @@
   .shadow-elegant { box-shadow: var(--shadow-elegant); }
   .shadow-card { box-shadow: var(--shadow-card); }
   .glass {
-    background: hsl(var(--card) / 0.6);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    border: 1px solid hsl(var(--border) / 0.8);
+    background: hsl(var(--card) / 0.55);
+    backdrop-filter: blur(10px) saturate(140%);
+    -webkit-backdrop-filter: blur(10px) saturate(140%);
+    border: 1px solid hsl(var(--border) / 0.7);
   }
   .grid-pattern {
     background-image:
-      linear-gradient(hsl(var(--border) / 0.4) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(var(--border) / 0.4) 1px, transparent 1px);
-    background-size: 48px 48px;
-    mask-image: radial-gradient(ellipse 60% 50% at 50% 0%, #000 40%, transparent 100%);
+      linear-gradient(hsl(var(--border) / 0.28) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--border) / 0.28) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse 60% 50% at 50% 0%, #000 35%, transparent 100%);
   }
+  .hover-lift { @apply transition-all duration-300; }
+  .hover-lift:hover { transform: translateY(-3px); box-shadow: var(--shadow-elegant); }
+  .marquee { display: flex; gap: 3rem; animation: marquee 30s linear infinite; }
+  @media (prefers-reduced-motion: reduce) {
+    .marquee { animation: none; }
+  }
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }
 
 @keyframes float {
