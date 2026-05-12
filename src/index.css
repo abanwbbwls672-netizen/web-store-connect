@@ -94,7 +94,12 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "cv11", "ss01";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
+  ::selection { background: hsl(var(--primary) / 0.25); color: hsl(var(--foreground)); }
+  h1, h2, h3, h4 { letter-spacing: -0.02em; }
 }
 
 @layer utilities {
