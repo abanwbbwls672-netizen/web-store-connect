@@ -46,14 +46,21 @@ export const Navbar = () => {
           scrolled ? "glass shadow-card py-2.5" : "py-3"
         )}
       >
-        <a href="#home" className="flex items-center gap-2 group">
+        <a href="#home" className="flex items-center gap-2.5 group">
           <div className="h-9 w-9 rounded-xl bg-gradient-primary grid place-items-center shadow-glow group-hover:scale-105 transition-transform">
             <Code2 className="h-5 w-5 text-primary-foreground" />
           </div>
           <div className="leading-tight">
-            <div className="font-bold tracking-tight">Web Store</div>
-            <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Dev Studio</div>
+            <div className="font-bold tracking-tight text-[15px]">Web Store</div>
+            <div className="text-[9px] uppercase tracking-[0.22em] text-muted-foreground font-medium">Dev Studio</div>
           </div>
+          <span className="hidden lg:inline-flex items-center gap-1.5 ms-3 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/25 text-[11px] font-medium text-primary">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-75 animate-ping" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
+            </span>
+            {t("nav.available")}
+          </span>
         </a>
 
         <nav className="hidden md:flex items-center gap-1">
