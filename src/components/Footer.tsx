@@ -60,7 +60,7 @@ export const Footer = () => {
                   aria-label={label}
                   className="h-10 w-10 grid place-items-center rounded-xl border border-border/70 bg-background/60 text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/5 transition-all"
                 >
-                  <Icon className="h-4.5 w-4.5" />
+                  <Icon className="h-4 w-4" />
                 </a>
               ))}
             </div>
