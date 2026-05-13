@@ -239,7 +239,7 @@ export default function Dashboard() {
     );
   }, [messages, messageQuery]);
 
-  if (loading || !user) {
+  if (loading || roleLoading || !user || !isAdmin) {
     return <div className="min-h-screen grid place-items-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
 
