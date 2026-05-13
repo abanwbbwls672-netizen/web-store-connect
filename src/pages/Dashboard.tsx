@@ -95,8 +95,16 @@ export default function Dashboard() {
   const [fullName, setFullName] = useState("");
 
   useEffect(() => {
-    if (!loading && !user) navigate("/auth", { replace: true });
-  }, [user, loading, navigate]);
+    if (loading || roleLoading) return;
+    if (!user) {
+      navigate("/auth", { replace: true });
+      return;
+    }
+    if (!isAdmin) {
+      toast.error(lang === "ar" ? "هذه الصفحة مخصصة للمشرفين فقط" : "Admins only");
+      signOut().finally(() => navigate("/auth", { replace: true }));
+    }
+  }, [user, isAdmin, loading, roleLoading, navigate, signOut, lang]);
 
   const loadAll = async () => {
     if (!user) return;
