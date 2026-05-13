@@ -61,7 +61,7 @@ const Stat = ({ icon: Icon, label, value, accent }: any) => (
 const emptyProject = { title: "", description: "", image_url: "", link_url: "", tech_stack: "" };
 
 export default function Dashboard() {
-  const { user, isAdmin, loading, signOut } = useAuth();
+  const { user, isAdmin, loading, roleLoading, signOut } = useAuth();
   const { state, setMode, setPreset, setPrimaryHex, setAccentHex, setBgHue, reset } = useTheme();
   const { t, lang, toggle } = useI18n();
   const navigate = useNavigate();
